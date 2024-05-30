@@ -1,0 +1,223 @@
+{
+  "menu": [
+    {
+      "url": "/",
+      "name": "Dashboard",
+      "slug": "dashboard",
+      "id":"#ico",
+      "icon": "desktop",
+      "dropdown": "1"
+    },
+    {
+      "url": "#",
+      "name": "Apps",
+      "slug": "apps",
+      "icon": "comments",
+      "dropdown": "1",
+      "submenu": [
+       
+        {
+          "url": "app/kanban",
+          "name": "Kanban",
+          "icon": "bx bx-right-arrow-alt",
+          "slug": "app-kanban"
+        },
+
+
+         {
+          "url": "#",
+          "name": "User",
+          "slug": "user",
+          "icon": "users",
+          "submenu": [
+            {
+              "url": "app/users/list",
+              "name": "List",
+              "icon": "bx bx-right-arrow-alt",
+              "slug": "app-users-list"
+            },
+            {
+              "url": "app/users/add",
+              "name": "Add",
+              "icon": "bx bx-right-arrow-alt",
+              "slug": "app-users-add"
+            }
+          ]
+        },
+        
+        {
+          "url": "#",
+          "name": "Exigences",
+          "slug": "exigences",
+          "icon": "notebook",
+          "submenu": [
+            {
+              "url": "#",
+              "name": "Security rules",
+              "slug": "security rules",
+              "icon": "bx bx-right-arrow-alt",
+              "submenu": [
+                {
+                  "url": "app/regles",
+                  "name": "List",
+                  "slug": "regles.index",
+                  "icon": "bx bx-right-arrow-alt"
+                },
+                {
+                  "url": "app/regles/create",
+                  "name": "Add",
+                  "slug": "regles.create",
+                  "icon": "bx bx-right-arrow-alt"
+                 
+                }
+        
+              ]
+            },
+            {
+              "url": "#",
+              "name": "Exigences",
+              "slug": "exigences",
+              "icon": "bx bx-right-arrow-alt",
+              "submenu": [
+                {
+                  "url": "app/exigences",
+                  "name": "List",
+                  "slug": "app-exigences",
+                  "icon": "bx bx-right-arrow-alt"
+                
+                },
+                {
+                  "url": "app/exigences/create",
+                  "name": "Add",
+                  "slug": "app-exigences-create",
+                  "icon": "bx bx-right-arrow-alt"
+                 
+                }
+              ]
+            },
+            {
+              "url": "#",
+              "name": "Exigencesfamilly",
+              "slug": "exigencesfamilly",
+              "icon": "bx bx-right-arrow-alt",
+              "submenu": [
+                {
+                  "url": "app/exigencesfamilly",
+                  "name": "List",
+                  "slug": "app-exigencesfamilly",
+                  "icon": "bx bx-right-arrow-alt"
+                
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "url": "#",
+          "name": "Action plan",
+          "slug": "planactions",
+          "icon": "servers",
+          "submenu": [
+            {
+              "url": "app/planactions/list",
+              "name": "List",
+              "slug": "planactions.index",
+              "icon": "bx bx-right-arrow-alt"
+            },
+            {
+              "url": "app/planactions/add",
+              "name": "Add",
+              "slug": "planactions.create",
+              "icon": "bx bx-right-arrow-alt"
+            },
+            {
+              "url": "app/archives",
+              "name": "Archive",
+              "slug": "app-archives-planactions",
+              "icon": "bx bx-right-arrow-alt"
+            }
+
+          ]
+        },
+        {
+          "url": "app/users/profile",
+          "name": "Account Settings",
+          "slug": "app-users-profile",
+          "icon": "user"
+        },
+        {
+          "url": "#",
+          "name": "Settings",
+          "slug": "settings",
+          "icon": "gears",
+          "submenu": [
+            {
+              "url": "#",
+              "name": "Team",
+              "slug": "team",
+              "icon": "bx bx-right-arrow-alt",
+              "submenu": [
+                {
+                  "url": "app/equipes",
+                  "name": "List",
+                  "slug": "equipes.index",
+                  "icon": "bx bx-right-arrow-alt"
+                },
+                {
+                  "url": "app/equipes/create",
+                  "name": "Add",
+                  "slug": "equipes.create",
+                  "icon": "bx bx-right-arrow-alt"
+                }
+              ]
+            },
+            {
+              "url": "#",
+              "name": "Role",
+              "slug": "role.index",
+              "icon": "bx bx-right-arrow-alt",
+              "submenu": [
+                {
+                  "url": "app/roles",
+                  "name": "List",
+                  "slug": "roles.index",
+                  "icon": "bx bx-right-arrow-alt"
+              
+                },
+                {
+                  "url": "app/roles/create",
+                  "name": "Add",
+                  "slug": "roles.create",
+                  "icon": "bx bx-right-arrow-alt"
+              
+                }
+              ]
+            },
+            {
+              "url": "#",
+              "name": "Permission",
+              "slug": "permissions.index",
+              "icon": "bx bx-right-arrow-alt",
+              "submenu": [
+                {
+                  "url": "permissions",
+                  "name": "List",
+                  "slug": "permissions.index",
+                  "icon": "bx bx-right-arrow-alt"
+                
+                },
+                {
+                  "url": "permissions/create",
+                  "name": "Add",
+                  "slug": "permissions.create",
+                  "icon": "bx bx-right-arrow-alt"
+                
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

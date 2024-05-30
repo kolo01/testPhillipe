@@ -1,0 +1,248 @@
+{
+  "menu": [
+    {
+      "url": "/",
+      "name": "Dashboard",
+      "slug": "dashboard",
+      "icon": "desktop"
+
+    },
+
+    {
+      "url": "app/kanban",
+      "name": "Kanban",
+      "slug": "app-kanban",
+      "icon": "grid"
+    },
+
+     {
+      "url": "#",
+      "name": "User",
+      "slug": "user",
+      "icon": "users",
+      "submenu": [
+        {
+          "url": "app/users/list",
+          "name": "List",
+          "slug": "app-users-list",
+          "icon": "bx bx-right-arrow-alt"
+        },
+        {
+          "url": "app/users/add",
+          "name": "Add",
+          "slug": "app-users-add",
+          "icon": "bx bx-right-arrow-alt"
+        }
+
+      ]
+    },
+    {
+      "url": "#",
+      "name": "Exigences",
+      "slug": "exigences",
+      "icon": "notebook",
+      "submenu": [
+        {
+          "url": "#",
+          "name": "Security rules",
+          "slug": "security rules",
+          "icon": "bx bx-right-arrow-alt",
+          "submenu": [
+            {
+              "url": "app/regles",
+              "name": "List",
+              "slug": "regles.index",
+              "icon": "bx bx-right-arrow-alt"
+            }
+    
+          ]
+        },
+        {
+          "url": "#",
+          "name": "Exigences",
+          "slug": "exigences",
+          "icon": "bx bx-right-arrow-alt",
+          "submenu": [
+            {
+              "url": "app/exigences",
+              "name": "List",
+              "slug": "exigences.index",
+              "icon": "bx bx-right-arrow-alt"
+            }
+          ]
+        },
+        {
+          "url": "#",
+          "name": "Exigencesfamilly",
+          "slug": "exigencesfamilly",
+          "icon": "bx bx-right-arrow-alt",
+          "submenu": [
+            {
+              "url": "app/exigencesfamilly",
+              "name": "List",
+              "slug": "exigencesfamilly.index",
+              "icon": "bx bx-right-arrow-alt"
+            
+            }
+          ]
+        },
+        {
+          "url": "#",
+          "name": "Chapitre",
+          "slug": "",
+          "icon": "bx bx-right-arrow-alt",
+          "submenu": [
+            {
+              "url": "app/exigenceschapitre",
+              "name": "List",
+              "slug": "exigenceschapitre.index",
+              "icon": "bx bx-right-arrow-alt"
+            
+            }
+          ]
+        }
+
+      ]
+    },
+
+    {
+      "url": "app/rapport-audit/solicitation-de-mission",
+      "name": "Mission",
+      "slug": "solicitation-de-mission.index",
+      "icon": "briefcase"
+    },
+
+    {
+      "url": "app/rapport-audit/gerer-mes-missions",
+      "name": "Gerer mes missions",
+      "slug": "solicitation-de-mission.gerer-mes-missions",
+      "icon": "briefcase"
+    },
+
+
+    {
+      "url": "app/rapport-audit",
+      "name": "Pole Gouvernance",
+      "slug": "audit.index",
+      "icon": "morph-folder"
+    },
+    
+    {
+      "url": "#",
+      "name": "Action plan",
+      "slug": "planactions",
+      "icon": "servers",
+      "submenu": [
+        {
+          "url": "app/planactions",
+          "name": "List",
+          "slug": "planactions.index", 
+          "icon": "bx bx-right-arrow-alt"
+        },
+        {
+          "url": "app/planactions/create",
+          "name": "Add",
+          "slug": "planactions.create",
+          "icon": "bx bx-right-arrow-alt"
+        },
+        {
+          "url": "app/archives",
+          "name": "Archive",
+          "slug": "app-archives-planactions",
+          "icon": "bx bx-right-arrow-alt"
+        }
+      ]
+    },
+
+    {
+      "url": "app/users/profile",
+      "name": "Account Settings",
+      "slug": "app-users-profile",
+      "icon": "user"
+    },
+
+    {
+      "url": "#",
+      "name": "Settings",
+      "slug": "settings",
+      "icon": "gears",
+      "submenu": [
+        {
+          "url": "#",
+          "name": "Team",
+          "slug": "team",
+          "icon": "bx bx-right-arrow-alt",
+          "submenu": [
+            {
+              "url": "app/equipes",
+              "name": "List",
+              "slug": "equipes.index",
+              "icon": "bx bx-right-arrow-alt"
+            },
+            {
+              "url": "app/equipes/create",
+              "name": "Add",
+              "slug": "equipes.create",
+              "icon": "bx bx-right-arrow-alt"
+            }
+          ]
+        },
+        {
+          "url": "#",
+          "name": "Type de mission",
+          "slug": "Type de mission",
+          "icon": "bx bx-right-arrow-alt",
+          "submenu": [
+            {
+              "url": "app/type_missions",
+              "name": "List",
+              "slug": "type_missions.index",
+              "icon": "bx bx-right-arrow-alt"
+            },
+            {
+              "url": "app/type_missions/create",
+              "name": "Add",
+              "slug": "type_missions.create",
+              "icon": "bx bx-right-arrow-alt"
+            }
+          ]
+        },
+        {
+          "url": "#",
+          "name": "Role",
+          "slug": "role.index",
+          "icon": "bx bx-right-arrow-alt",
+          "submenu": [
+            {
+              "url": "roles",
+              "name": "List",
+              "slug": "roles.index",
+              "icon": "bx bx-right-arrow-alt"
+            }
+          ]
+        },
+        {
+          "url": "#",
+          "name": "Permission",
+          "slug": "",
+          "icon": "bx bx-right-arrow-alt",
+          "submenu": [
+            {
+              "url": "permissions",
+              "name": "List",
+              "slug": "permissions.index",
+              "icon": "bx bx-right-arrow-alt"
+            },
+            {
+              "url": "permissions/create",
+              "name": "Add",
+              "slug": "permissions.create",
+              "icon": "bx bx-right-arrow-alt"
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}
