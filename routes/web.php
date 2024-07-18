@@ -46,6 +46,7 @@ Route::get('/success_url/{id}', [PaiementController::class, 'successURL'])->name
 Route::get('/failed_url/{id}', [PaiementController::class, 'failedURL'])->name('failedURL');
 Route::get('/notif_url/{id}', [PaiementController::class, 'notifiedURL'])->name('notifiedURL');
 
+Route::get('/check-the-transaction', [CompteController::class, 'checkTheTransaction']); //check-the-transaction
 
 Route::middleware('auth','web')->group(function () {
     // Routes that require authentication
@@ -83,6 +84,9 @@ Route::middleware('auth','web')->group(function () {
     Route::get('/suvi-des-transactions', [TransactionController::class, 'transactions'])->name('liste.transactions');
     //----26/10/2023
     Route::get('/detail-transactions/{id}', [TransactionController::class, 'detailtransaction'])->name('detail.transaction');
+    Route::post('/export-excel',  [TransactionController::class, 'exportExcel'])->name('export.excel');
+    Route::post('/search-transactions',  [TransactionController::class, 'SearchTransactions'])->name('search.transactions');
+    
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('user.logout');

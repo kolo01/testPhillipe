@@ -1,6 +1,18 @@
 @extends('layout')
 
-@section('content')       
+@section('content')   
+<style>
+        @import url(https://fonts.googleapis.com/css?family=Roboto);
+
+    body {
+    font-family: Roboto, sans-serif;
+    }
+
+    #chart {
+    max-width: 650px;
+    margin: 35px auto;
+    }
+  </style>   
     <div class="col-lg-9 col-md-8">
         <div class="dashboard-body">
         
@@ -102,16 +114,175 @@
                                     <h5><i class="fa fa-circle m-r-5 wave"></i>Wave</h5>
                                 </li>
                             </ul>
-                            <div id="tester" style="width:1000px;height:300px;"></div>
+                            <div id="paychart"></div>
+                            <div id="retchart"></div>
                         </div>
                     </div>
                 </div>
             </div>    
             <!-- row -->
-            
-        
         </div>
     </div>  
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+
+var mapData = @json($mapData);
+var dep = mapData.dep;
+var ret = mapData.ret;
+var p = [];
+var r = [];
+var dp = [];
+var dr = [];
+dep.forEach(function(item) {
+    p.push(item.transacmontant);
+    dp.push(item.date);
+});
+ret.forEach(function(item) {
+    r.push(item.transacmontant);
+    dr.push(item.date);
+});
+console.log('===================Tableau P=================')
+console.log(p);
+console.log('--------------------------------------------------')
+console.log(dp);
+console.log('===================Fin Tableau P=================')
+console.log('===================Tableau R=================')
+console.log(r);
+console.log('--------------------------------------------------')
+console.log(dr);
+console.log('=====================Fin Tableau R==============')
+var payOptions = {
+        chart: {
+            height: 350,
+            type: "line",
+            stacked: false
+        },
+        dataLabels: {
+            enabled: false
+        },
+        colors: ["#247BA0", "#247BA0"],
+        series: [
+            {
+            name: "Paiement",
+            data: p
+            }
+        ],
+        stroke: {
+            width: [4, 4]
+        },
+        plotOptions: {
+            bar: {
+            columnWidth: "20%"
+            }
+        },
+        xaxis: {
+            categories: dp
+        },
+        yaxis: [
+            {
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#247BA0"
+            },
+            labels: {
+                style: {
+                colors: "#247BA0"
+                }
+            },
+            title: {
+                text: "PAIEMENT",
+                style: {
+                color: "#247BA0"
+                }
+            }
+            },
+        ],
+        tooltip: {
+            shared: false,
+            intersect: true,
+            x: {
+            show: false
+            }
+        },
+        legend: {
+            horizontalAlign: "left",
+            offsetX: 40
+        }
+    };
+
+
+var retOptions = {
+  chart: {
+    height: 350,
+    type: "line",
+    stacked: false
+  },
+  dataLabels: {
+    enabled: false
+  },
+  colors: ["#FF1654", "#247BA0"],
+  series: [
+    {
+      name: "Retrait",
+      data: r
+    }
+  ],
+  stroke: {
+    width: [4, 4]
+  },
+  plotOptions: {
+    bar: {
+      columnWidth: "20%"
+    }
+  },
+  xaxis: {
+    categories: dr
+  },
+  yaxis: [
+    {
+      axisTicks: {
+        show: true
+      },
+      axisBorder: {
+        show: true,
+        color: "#FF1654"
+      },
+      labels: {
+        style: {
+          colors: "#FF1654"
+        }
+      },
+      title: {
+        text: "RETRAIT",
+        style: {
+          color: "#FF1654"
+        }
+      }
+    },
+  ],
+  tooltip: {
+    shared: false,
+    intersect: true,
+    x: {
+      show: false
+    }
+  },
+  legend: {
+    horizontalAlign: "left",
+    offsetX: 40
+  }
+};
+
+var retChart = new ApexCharts(document.querySelector("#retchart"), retOptions);
+var payChart = new ApexCharts(document.querySelector("#paychart"), payOptions);
+
+retChart.render();
+payChart.render();
+
+    </script>
 @endsection
 
  

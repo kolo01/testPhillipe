@@ -1,38 +1,78 @@
 @extends('layout')
-
 @section('content') 
     <div class="col-lg-9 col-md-8 col-sm-12">
         <div class="dashboard-body">
             <div class="clearfix mb-3"></div>
             <div class="row">
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{route('liste.transactions')}}" method="get">
+                    <form action="{{route('search.transactions')}}" method="post">
                         @csrf
-                        <div class="_prt_filt_dash">
-                            <div class="form-group ml-2">
-                                <input type="text" name="id_paie" style="width:25em;"  placeholder="Rechercher par un identifiant de transaction" class="form-control" id="transaction">
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="id_paie">TRANSACTION ID</label>
+                                <input type="text" name="id_paie" placeholder="Rechercher par un identifiant de transaction" class="form-control" id="transaction">
                             </div>
-                            <div class="form-group ml-2">
-                                <select name="modepaiement" id="modepaiement" class="form-control" style="width:12em;">
-                                    <option value="0"> Choisir operateur</option>
+                            <div class="form-group col-md-4">
+                                <label for="status">Statut</label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="">Choisir</option>
+                                    <option value="PENDING">EN ATTENTE</option>
+                                    <option value="SUCCESS">SUCCES</option>
+                                    <option value="FAILED">ECHOUE</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label for="modepaiement">Opérateur</label>
+                                <select name="modepaiement" id="modepaiement" class="form-control">
+                                    <option value="">Choisir</option>
                                     <option value="OM_CI">Orange Money</option>
                                     <option value="WAVE_CI">WAVE</option>
                                     <option value="MTN_CI">MTN Momo</option>
                                     <option value="MOOV_CI">Moov</option>
                                 </select>
                             </div>
-                     
-                            <button type="submit" class="btn btn-md btn-secondary ml-2 mb-2">Ok</button>
+                            <div class="form-group col-md-2">
+                                <label for="type">TYPE</label>
+                                <select name="type" id="type" class="form-control">
+                                    <option value="">Choisir</option>
+                                    <option value="retrait">Retrait</option>
+                                    <option value="depot">Paiement</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="periode_debut">Date début</label>
+                                <input type="date" class="form-control" id="periode_debut" name="periode_debut">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="periode_fin">Date fin</label>
+                                <input type="date" class="form-control" id="periode_fin" name="periode_fin">
+                            </div>
+                            <div class="form-group col-md-4 align-self-end">
+                                <button type="submit" class="btn btn-primary btn-block">Rechercher</button>
+                            </div>
+                        </div>
+                        {{-- <div class="form-row mt-3">
+                            <div class="form-group col-md-12">
+                                <button type="button" class="btn btn-success btn-block"> <i class="fas fa-file-excel" style="color: #fff"></i> Exporter le document </button>
+                            </div>
+                        </div> --}}    
+                    </form>
+                    <form action="{{route('export.excel')}}" method="post">
+                        @csrf
+                        <div class="form-row mt-3">
+                            <div class="form-group col-md-12">
+                                <input type="hidden" name="results" value="{{json_encode($transactions)}}">
+                                <button type="submit" class="btn btn-success btn-block"> <i class="fas fa-file-excel" style="color: #fff"></i> Exporter le document </button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div> 
-            
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12">
                     <div class="dashboard_property">
                         <div class="table-responsive overflow-auto" style=" overflow: auto;">
-                            <table class="table table-responsive overflow-auto" id="myTable" data-order='[[ 1, "desc" ]]'>
+                            <table class="table table-responsive overflow-auto" id="myTable" data-order-test='[[ 1, "desc" ]]'>
                                 <thead class="thead-dark">
                                     <tr>
                                     <th scope="col">#</th>
@@ -129,7 +169,7 @@
                                         <td class="m2_hide">
                                             <div class="_leads_view_title">
                                               @if ($transaction->statut == 'INITIATE' || $transaction->statut == 'INITIATED' || $transaction->statut == 'PENDING' || $transaction->statut == 'processing' )
-                                                <span class="text-truncate" style="background:#52BE80;color:#fff;padding:5px;"> En cours</span>
+                                                <span class="text-truncate" style="background:#2039c7;color:#fff;padding:5px;"> En attente</span>
                                               @elseif($transaction->statut == 'SUCCEEDED' || $transaction->statut == 'SUCCESS' || $transaction->statut == 'SUCCES' || $transaction->statut == 'VALIDED')
                                                 <span style="background:#52BE80;color:#fff;padding:5px;"> Succès</span>
                                               @elseif($transaction->statut == 'FAILED' || $transaction->statut == 'EXPIRED' || $transaction->statut == 'cancelled')
@@ -146,7 +186,9 @@
                                     </tr>    
                                     @endforeach
                                 </tbody>
+
                             </table>
+
                         </div>
                     </div>
                 </div>
