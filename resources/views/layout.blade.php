@@ -64,6 +64,7 @@
                                         <ul class="nav_text">
                                             <li class="{{  (Route::currentRouteName() == 'dashboard.index') ? 'active' : '' }}"><a class="nav_text" href="{{route('dashboard.index')}}"><i class="fa fa-home fa-lg" style="color:#203dcf;"></i>Tableau de bord</a></li>
                                             <li class="{{  (Route::currentRouteName() == 'liste.transactions') ? 'active' : '' }}"><a class="nav_text" href="{{route('liste.transactions')}}"><i class="fa fa-coins fa-lg" style="color:#F7DC6F;"></i>Suivi des transactions</a></li>
+                                            <li class="{{  (Route::currentRouteName() == 'liste.statistique') || (Route::currentRouteName() == 'liste.statistiqueSearch') ? 'active' : '' }}"><a class="nav_text" href="{{route('liste.statistique')}}"><i class="fa fa-cubes fa-lg" style="color:#bf0559;"></i>Statistiques</a></li>
                                             <li class="{{  (Route::currentRouteName() == 'view.transaction.manager') ? 'active' : '' }}"><a class="nav_text" href="{{route('view.transaction.manager')}}"><i class="ti-wallet fa-lg"   style="color:#F86F03;"></i>Gérer mes fonds</a></li>
                                             <li class="{{  (Route::currentRouteName() == 'view.depot') ? 'active' : '' }}"><a class="nav_text" href="{{route('view.depot')}}"><i class="fa fa-file fa-lg"   style="color:green;"></i>Dépôt</a></li>
                                             @if(auth()->user()->role == 'superAdmin')

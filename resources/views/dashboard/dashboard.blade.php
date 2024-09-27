@@ -124,6 +124,7 @@
         </div>
     </div>  
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
     <script>
 
 var mapData = @json($mapData);
@@ -231,7 +232,8 @@ var retOptions = {
     }
   ],
   stroke: {
-    width: [4, 4]
+    width: [4, 4],
+    curve: 'smooth'
   },
   plotOptions: {
     bar: {

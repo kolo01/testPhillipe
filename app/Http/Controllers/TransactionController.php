@@ -8,9 +8,13 @@ use App\Models\Marchand;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Log;
+use App\Http\Traits\fondManager;
 
 class TransactionController extends Controller
-{
+{   
+    use fondManager;
+    
     public function transactions()
     {    
        // $transactions = Transaction::where('id','!=', '')->orderby('created_at','desc')->get();
@@ -31,15 +35,18 @@ class TransactionController extends Controller
                     $all_transactions = DB::connection('mysql2')->table('transactions');
                     $infotransaction = DB::connection('mysql2')->table('info_transactions');
                 } else {
-                    $transactions = Transaction::where('marchand_id', auth()->user()->marchand_id);
-                    $all_transactions = Transaction::query();
+                    // $transactions = Transaction::where('marchand_id', auth()->user()->marchand_id);
+                    // $all_transactions = Transaction::query();
+                    // $infotransaction = DB::table('info_transactions');
+                    $transactions = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id);
+                    $all_transactions = DB::table('view_transactions');
                     $infotransaction = DB::table('info_transactions');
               
                 }
 
                 $query =   auth()->user()->role == 'superAdmin' ?  $all_transactions : $transactions;
                  // Effectuer la recherche
-                $transactions = $query
+                $trQuery = $query
                     ->when($periodeDebut, function ($query) use ($periodeDebut) {
                         return $query->whereDate("created_at",'>=', $periodeDebut);
                     })
@@ -57,11 +64,18 @@ class TransactionController extends Controller
                     })
                     ->when($type, function ($query) use ($type) {
                         return $query->where('type', $type);
-                    })
-                    ->orderby('created_at','desc')->get(); 
-                  
+                    });
+                    
+                    $totalTransactions = $trQuery->count();
+                    // Get the paginated transactions
+                    $transactions = $trQuery->orderby('created_at', 'desc')->paginate(50);
 
-        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id'));
+                    // $transactions->getCollection()->transform(function ($transaction) {
+                    //     $transaction->frais = $transaction->transacmontant * $transaction->fraistransaction;
+                    //     return $transaction;
+                    // });
+                  
+        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions'));
     }
 
 
@@ -85,15 +99,18 @@ class TransactionController extends Controller
                     $all_transactions = DB::connection('mysql2')->table('transactions');
                     $infotransaction = DB::connection('mysql2')->table('info_transactions');
                 } else {
-                    $transactions = Transaction::where('marchand_id', auth()->user()->marchand_id);
-                    $all_transactions = Transaction::query();
+                    // $transactions = Transaction::where('marchand_id', auth()->user()->marchand_id);
+                    // $all_transactions = Transaction::query();
+                    // $infotransaction = DB::table('info_transactions');
+                    $transactions = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id);
+                    $all_transactions = DB::table('view_transactions');
                     $infotransaction = DB::table('info_transactions');
               
                 }
 
                 $query =   auth()->user()->role == 'superAdmin' ?  $all_transactions : $transactions;
                  // Effectuer la recherche
-                $transactions = $query
+                $trQuery = $query
                     ->when($periodeDebut, function ($query) use ($periodeDebut) {
                         return $query->whereDate("created_at",'>=', $periodeDebut);
                     })
@@ -111,11 +128,14 @@ class TransactionController extends Controller
                     })
                     ->when($type, function ($query) use ($type) {
                         return $query->where('type', $type);
-                    })
-                    ->orderby('created_at','desc')->get(); 
+                    }); 
+
+                    $totalTransactions = $trQuery->count();
+
+                    $transactions = $trQuery->orderby('created_at', 'desc')->get();
                   
 
-        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id'));
+        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions'));
     }
 
 
@@ -175,313 +195,147 @@ class TransactionController extends Controller
     }
 
 
-     public function calculFrais($mt, $ft, $tp){
-       $mt_retrait = ceil($mt + (($ft/100) * $mt));
-       $mt_depot = ceil($mt - (($ft/100) * $mt));
-       $mt_recu = $tp == 'retrait' ? $mt_retrait : $mt_depot;
-       return  $mt_recu;
-    }
-
-    public checkTransStatus($id){
-
-        try {
-            $transaction = Transaction::where('id', $id)->first();
-            if ($transaction) {
-                Log::info("====TRANSACTION====");
-                Log::info($transaction);
-                $id = $transaction->notif_token;
-                Log::info("Token-ID: ".$id);
-                Log::info("NOTIF TOKEN: ".$merchantTransactionId);
-                $status = $this->getStatusFromApi($id);
-                $decodeRep = $status;
-                Log::info("=============CHECK PROBLEM================");
-                Log::info($status);
-                Log::info("===============END CHECK PROBLEM==============");
-                switch ($status) {
-                    case 'INITIATED':
-                    
-                        $statut = 'INITIATED';
-                        
-                        break;
-                    case 'EXPIRED':
-                        $statut = 'FAILED';
-                        
-                        break;
-                    case 'SUCCESSFUL':
-                    case 'SUCCEED':
-                        $statut = 'SUCCESS';
-                        break;
-                    case 'FAILED':
-                    case '404':
-                    case 'PENDING':
-                        $statut = 'FAILED';
-                        
-                        break;
-                    default:
-                        // Gestion d'autres statuts si nécessaire
-                        break;
-             }  
-                Log::info("ID: ".$i++);
-                Log::info("STATUS: ".$statut);
-                Transaction::where('merchant_transaction_id', $merchantTransactionId)->update(['statut' => $statut]);
-                Log::info("====END TRANSACTION====");
-            } else {
-                Log::info("Transaction not found for merchant_transaction_id: ".$merchantTransactionId);
-            }
-        } catch (\Throwable $th) {
-            Log::info("===============CATCH CHECK PROBLEM==============");
-            Log::info($th->getMessage());
-            Log::alert("merchant_transaction_id: ".$merchantTransactionId);
-            Log::info("===============CATCH END CHECK PROBLEM==============");
+    public function statistique()
+    {   
+        $periodeDebut = date('Y-m-d');
+        $periodeFin = date('Y-m-d');
+        $marchand = Marchand::find(auth()->user()->marchand_id);
+        $nom_marchand = $marchand->nom;
+        $marchand_id = $marchand->id;
+        $service_status = $marchand->service_status;
+        if ($service_status == 1) {
+            return back();
         }
-
-    }
-
-
-
-public function callbackClientURL($notifToken)
-{   
-    try {
-        Log::info("========================================begin callbackClient===========================");
-        Log::info($notifToken);
-        $transaction = Transaction::where('notif_token', $notifToken)->first();
-        if ($transaction) {
-            $marchand_id = $transaction->marchand_id;
-            Log::info($marchand_id);
-            // Récupération de l'URL de callback du marchand
-            $marchand = Marchand::find($marchand_id);
-            if ($marchand) {
-                $callback_url = $marchand->callback_url;
-                // Préparation des données à envoyer
-                $requestData = [
-                    'code' => 200,
-                    'status' => $transaction->statut,
-                    'message' => "Your transaction is " . $transaction->statut,
-                    'transactionID' => $transaction->merchant_transaction_id
-                ];
-            } else {
-                Log::info("Marchand not found for marchand_id: $marchand_id");
-                return; // Marchand non trouvé, ne pas continuer
-            }
+        if (auth()->user()->role == 'superAdmin') {
+             $nb_t = DB::table('succeed_daily_transactions')->get()->count();
+             $sum_t = DB::table('succeed_daily_transactions')->where('type', 'depot')->sum('transacmontant');
+             $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
+             $sum_r = DB::table('succeed_daily_transactions')->where('type', 'retrait')->sum('transacmontant');
+             $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
+             $solde = $sum_paye - $sum_retire;
+             $f_p = $this->getMtFees($sum_t, $marchand->tranche_transac);
+             $f_r = $this->getMtFees($sum_r, $marchand->tranche_retrait);
+             //$feesAmount = $f_p + $f_r;
+             $feesAmount = DB::table('view_montantfrais_total_jour')->first()->montant_total_frais;
         } else {
-            Log::info("Transaction not found for notif_token: $notifToken");
-            return; // Transaction non trouvée, ne pas continuer
+             $nb_t = DB::table('succeed_daily_transactions')->where('marchand_id', auth()->user()->marchand_id)->get()->count();
+             $sum_t = DB::table('succeed_daily_transactions')->where('marchand_id', auth()->user()->marchand_id)->where('type', 'depot')->sum('transacmontant');
+             $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
+             $sum_r = DB::table('succeed_daily_transactions')->where('marchand_id', auth()->user()->marchand_id)->where('type', 'retrait')->sum('transacmontant');
+             $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
+             $solde = $sum_paye - $sum_retire;
+             $f_p = $this->getMtFees($sum_t, $marchand->tranche_transac);
+             $f_r = $this->getMtFees($sum_r, $marchand->tranche_retrait);
+             //$feesAmount = $f_p + $f_r;
+             $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->where('marchand_id', auth()->user()->marchand_id)->sum('montantfrais');
         }
-        Log::info($requestData);
-        // Configuration de cURL
-        $curl = curl_init();
-        $curlOptions =  [
-            CURLOPT_URL => $callback_url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode($requestData),
-            CURLOPT_HTTPHEADER => [
-                "Content-Type: application/json"
-            ],
-        ];
-        curl_setopt_array($curl, $curlOptions);
-        // Exécution de la requête cURL
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-        // Vérification des erreurs et enregistrement des logs
-        if ($err) {
-            Log::error("cURL Error: $err");
+        //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
+        return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin','feesAmount'));
+    }
+    
+
+    public function statistiqueSearch(Request $request)
+    {   
+        $periodeDebut = request()->input('periode_debut');
+        $periodeFin = request()->input('periode_fin');
+        $marchand = Marchand::find(auth()->user()->marchand_id);
+        $nom_marchand = $marchand->nom;
+        $marchand_id = $marchand->id;
+        $service_status = $marchand->service_status;
+        if ($service_status == 1) {
+            return back();
+        }
+        if ((request()->input('periode_debut') == null && request()->input('periode_fin') == null) || (request()->input('periode_debut') > request()->input('periode_fin'))) {
+            return redirect()->route('liste.statistique');
+        }
+        if (auth()->user()->role == 'superAdmin') {
+
+            $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate('created_at', '>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate('created_at', '<=', $periodeFin);
+            })->get()->count();
+
+            $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate('created_at', '>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate('created_at', '<=', $periodeFin);
+            })->where('type', 'depot')->sum('transacmontant');
+
+            $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
+
+            $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate('created_at', '>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate('created_at', '<=', $periodeFin);
+            })->where('type', 'retrait')->sum('transacmontant');
+            $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
+            $solde = $sum_paye - $sum_retire;
+            $solde = "";
+            $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate('created_at', '>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate('created_at', '<=', $periodeFin);
+            })->sum('montantfrais');
+
         } else {
-            Log::info("cURL Response: $response");
+            
+            $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate('created_at', '>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate('created_at', '<=', $periodeFin);
+            })->where('marchand_id', auth()->user()->marchand_id)->get()->count();
+
+            $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate('created_at', '>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate('created_at', '<=', $periodeFin);
+            })->where('marchand_id', auth()->user()->marchand_id)->where('type', 'depot')->sum('transacmontant');
+
+            $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
+            $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', auth()->user()->marchand_id)->where('type', 'retrait')->sum('transacmontant');
+            $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
+            $solde = "";
+
+            $feesAmount = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id)->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate('created_at', '>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate('created_at', '<=', $periodeFin);
+            })->sum('montantfrais');
+
         }
-        Log::info("========================================callbackClient===========================");
-    } catch (\Throwable $th) {
-        Log::error("Exception occurred: " . $th->getMessage());
+        //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
+        return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin','feesAmount'));
     }
-}
-
-public function checkIntouchStatus($idTransac, $token) {
-  $curl = curl_init();
-  curl_setopt_array($curl, array(
-      CURLOPT_URL => 'https://api.bizao.com/mobilemoney/v1/getStatus/'.$idTransac,
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_ENCODING => '',
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => 'GET',
-      CURLOPT_POSTFIELDS => 'grant_type=client_credentials',
-      CURLOPT_HTTPHEADER => array(
-          'Authorization: Bearer '.$token,
-          'country-code: ci',
-          'mno-name: mtn',
-          'channel: tpe',
-          'Content-Type: application/json',
-          'Cookie: route=1717602909.798.1111.116589|81ae3a9a04c06b83bdb4bb4311fcd72d'
-      ),
-  ));
-  $response = curl_exec($curl);
-  curl_close($curl);
-  return $response;
-}
 
 
-private function getStatusFromApi($id)
-{
-    $apiUrl = "https://api.gutouch.com/dist/api/touchpayapi/v1/BABIM9924/transaction/{$id}?loginAgent=0778059869&passwordAgent=aqHZcMh69V";
-    $authentication = [
-        'type' => 'digest',
-        'disabled' => false,
-        'username' => 'aa4d7ced4d46e0392ca4b747a2594e0df33a94867be8ace9f1fdc35f60bf1ed9',
-        'password' => 'da919fc300c3800f4399749a5b21e1a1199a3326d8997e7a07891089abd2871b',
-    ];
-
-    $curl = curl_init();
-    $curlOptions = [
-        CURLOPT_URL => $apiUrl,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_HTTPHEADER => [
-            "Content-Type: application/json",
-            "User-Agent: insomnia/2023.5.8",
-        ],
-    ];
-
-    curl_setopt_array($curl, $curlOptions);
-    // Ajouter les informations d'authentification digest
-    curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
-    curl_setopt($curl, CURLOPT_USERPWD, "{$authentication['username']}:{$authentication['password']}");
-    // Exécutez la requête cURL
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
-    // Fermer la session cURL
-    curl_close($curl);
-
-    // Vérifier les erreurs
-    if ($err) {
-        Log::info("erreur: {$err}");
-    } else {
-        $result = json_decode($response);
-        $status = $result->status;
-        Log::info("result : {$response}");
-        return $status;
+    public function calculFrais($mt, $ft, $tp) {
+        // Check and log types of the variables
+        Log::info('Type of $mt: ' . gettype($mt));
+        Log::info('Type of $ft: ' . gettype($ft));
+        Log::info('Type of $tp: ' . gettype($tp));
+        $mt_retrait = ceil($mt + (($ft / 100) * $mt));
+        $mt_depot = ceil($mt - (($ft / 100) * $mt));
+        $mt_recu = $tp == 'retrait' ? $mt_retrait : $mt_depot;
+        return $mt_recu;
     }
-}
-
-
-public function BizaoCheck($idfromclient) 
-{
-    try {
-        Log::info("=========Bizao IN TRY=================");   
-        // Recherche de la transaction
-        $rechargement = Transaction::where('notif_token', $idfromclient)->first();
-        Log::info("debut rechargement");
-        Log::info($rechargement);
-        Log::info("rechargement");
-        if (!$rechargement) {
-            Log::info("Aucune transaction trouvée avec l'ID $idfromclient et le statut 'INITIATED'");
-            return;
-        }
-        $id = "LJCQ5CcRpMeCFzcsQJ9M4w2YDzEa";
-        $secret = "EmsVO1BIIZVP_c5bBm7FpeWir8oa";
-        $basicAuthorization = base64_encode("$id:$secret");
-        $getAccessToken = $this->getAccessToken($basicAuthorization);
-        $decodegetAccessToken = json_decode($getAccessToken);
-        $access_token = $decodegetAccessToken->access_token;
-        $rep = $this->checkTransacStatus($idfromclient, $access_token);
-        $decodeRep = json_decode($rep);
-        $status = $decodeRep->status;
-        $mobile_debite = DB::table('info_transactions')->where('transaction_order_id', $rechargement->merchant_transaction_id)->first()->client_phone ?? "";
-        $numero_tel =  Transaction::where('marchand_id', $rechargement->marchand_id)->first()->contact ?? "";
-        $nom_marchand = DB::table('marchands')->where('id', $rechargement->marchand_id)->first()->nom ?? "";
-        $solde_marchand = $this->soldeMarchandCompte($rechargement->marchand_id); 
-        $montant = $rechargement->transacmontant;
-        $msg_client = "Paiement reussi! Vers le numero ".$numero_tel." le ".date('d/m/Y à H:i:s').". Montant payé ".number_format($montant,'0', ',', '.')."F chez le marchand ".$nom_marchand;
-        $msg_marchand = "Vous avez reçu du numero ".$mobile_debite.". à la date du ".date('d/m/Y à H:i:s')." un montant de ".number_format($rechargement->transacmontant,'0', ',', '.')."F, Frais ".number_format($rechargement->fraistransaction, '0',',','.')."F avec ".$nom_marchand.". Votre nouveau solde est de ".number_format($solde_marchand, '0', ',', '.')."F";
-        $cancel_msg_client = "Paiement échoué! vers le numero ".$numero_tel." le ".date('d/m/Y à H:i:s').". Montant ".number_format($montant,'0', ',', '.')."F chez le marchand ".$nom_marchand;
-        $cancel_msg_marchand = "Echec de paiement! le numero du payeur est ".$mobile_debite.". Date de paiement ".date('d/m/Y à H:i:s')." Frais ".number_format($rechargement->fraistransaction,'0', ',', '.')."F, Montant ".number_format($rechargement->transacmontant,'0',',','.')."F avec ".$nom_marchand.". Votre solde est de ".number_format($solde_marchand, '0', ',', '.')."F";
-        $status = strtoupper($status);
-        $token = $rechargement->notif_token;
-        Log::info("statut ===> ".$status);
-        if (!isset($token)) {
-            Log::info("erreur id: Paramètre 'notif_token' manquant dans la requête");
-            return;
-        }
-        
-        try {
-            switch ($status) {
-                case 'INITIATED':
-                case 'LOADED': 
-                case 'INPROGRESS':
-                    $rechargement->statut = 'INITIATED';
-                    $statut = 'EN COURS';
-                    break;
-                case 'CANCELED':
-                case 'FAILED':
-                    $rechargement->statut = 'FAILED';
-                    $statut = 'ECHOUE';
-                    break;
-                case 'SUCCESSFUL':
-                    $rechargement->statut = 'SUCCESS';
-                    $statut = 'SUCCES';
-                    break;
-                default:
-                    Log::info("Statut inconnu: $status");
-                    return;
-            }
-
-            // Enregistrer la transaction mise à jour
-            $rechargement->save();
-            Log::info("statut ===> ".$status);
-            Log::info("type ===> ".$rechargement->type);
-        } catch (\Throwable $th) {
-            Log::info("=========1- catch BizaoCheck IN INNER TRY=================");
-            Log::info('erreur exception: '.$th->getMessage());
-            Log::info("ID RECH: ". $rechargement->id." error: ". $th->getMessage().  " REFERENCE OPERATEUR : ". $rechargement->notif_token. " Status : ".$rechargement->statut. " Type transaction : ".$rechargement->modepaiement);
-            $rechargement->statut = 'FAILED';
-            $rechargement->save();
-            Log::info("=========1- catch Fin BizaoCheck IN INNER TRY=================");
-        }
-    } catch (\Throwable $e) {
-        Log::info("=========2- catch BizaoCheck IN INNER TRY=================");
-        Log::info("catch===========");
-        Log::info($e->getMessage());
-        Log::info("=========2- catch Fin BizaoCheck IN INNER TRY=================");
-        return $e->getMessage();
-        
-    }
-}
-
-
-public function getAccessToken($basicAuthorization) {
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://api.bizao.com/token',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => 'grant_type=client_credentials',
-        CURLOPT_HTTPHEADER => array(
-            'Authorization: Basic ' . $basicAuthorization,
-            'Content-Type: application/x-www-form-urlencoded'
-        ),
-    ));
-
-    $response = curl_exec($curl);
-    curl_close($curl);
-    return $response;
-}
 
 
     
+    public function getMtFees($mt, $ft) {
+        // Check and log types of the variables
+        Log::info('Type of $mt: ' . gettype($mt));
+        Log::info('Type of $ft: ' . gettype($ft));
+        $fees = ceil(($ft / 100) * $mt);
+        return $fees;
+    }
 
 
     

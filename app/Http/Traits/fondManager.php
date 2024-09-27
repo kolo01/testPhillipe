@@ -165,6 +165,177 @@ trait fondManager
       return $mt;
    }
 
+
+#===============================STATISTIQUE=================================
+public function GstateSoldeCompte($periodeDebut=null, $periodeFin=null)
+{
+    $mt = $this->GstateSoldeTransaction($periodeDebut=null, $periodeFin=null) - $this->GstateSoldeRetrait($periodeDebut=null, $periodeFin=null);
+    return $mt;
+}
+
+public function stateSoldeCompte($periodeDebut=null, $periodeFin=null)
+{
+    $mt = $this->stateSoldeTransaction($periodeDebut=null, $periodeFin=null) - $this->stateSoldeRetrait($periodeDebut=null, $periodeFin=null);
+    return $mt;
+}
+   
+public function GstateTransaction($periodeDebut=null, $periodeFin=null, $type=null)
+{
+    $montant_total = Transaction::where('statut', '=', 'SUCCESS')
+                                    ->when($periodeDebut, function ($query) use ($periodeDebut) {
+                                        return $query->whereDate("created_at",'>=', $periodeDebut);
+                                    })
+                                    ->when($periodeFin, function ($query) use ($periodeFin) {
+                                        return $query->whereDate("created_at",'<=', $periodeFin);
+                                    })->where('type', $type)->get();
+   
+            if ($montant_total->count() == 0 || $montant_total->count() == null) {
+                $mt = 0;
+            }else {
+                $mt = $montant_total->map(function($item){
+                    $montant = $item->transacmontant;
+                    $fraistransaction = $item->fraistransaction;
+                    $frais = floatval($fraistransaction) * $montant * 1/100;
+                    $total = $montant + $frais;
+                    return $total;
+                })->sum();
+            }
+
+                return $mt;
+
+}
+
+public function GstateSoldeRetrait($periodeDebut=null, $periodeFin=null)
+{
+    $montant_total = Transaction::where('statut', '=', 'SUCCESS')
+                                ->when($periodeDebut, function ($query) use ($periodeDebut) {
+                                    return $query->whereDate("created_at",'>=', $periodeDebut);
+                                })
+                                ->when($periodeFin, function ($query) use ($periodeFin) {
+                                    return $query->whereDate("created_at",'<=', $periodeFin);
+                                })->where('type','retrait')->get();
+   
+   if ($montant_total->count() == 0 || $montant_total->count() == null) {
+       $mt = 0;
+   }else {
+       $mt = $montant_total->map(function($item){
+           $montant = $item->transacmontant;
+           $fraistransaction = $item->fraistransaction;
+           $frais = floatval($fraistransaction) * $montant * 1/100;
+           $total = $montant + $frais;
+           return $total;
+       })->sum();
+   }
+
+    return $mt;
+
+}
+
+public function GstateSoldeTransaction($periodeDebut=null, $periodeFin=null)
+{
+    $montant_total = Transaction::where('statut', '=', 'SUCCESS')
+                                ->when($periodeDebut, function ($query) use ($periodeDebut) {
+                                    return $query->whereDate("created_at",'>=', $periodeDebut);
+                                })
+                                ->when($periodeFin, function ($query) use ($periodeFin) {
+                                    return $query->whereDate("created_at",'<=', $periodeFin);
+                                })->where('type','depot')->get();
+   
+   if ($montant_total->count() == 0 || $montant_total->count() == null) {
+       $mt = 0;
+   }else {
+       $mt = $montant_total->map(function($item){
+           $montant = $item->transacmontant;
+           $fraistransaction = $item->fraistransaction;
+           $frais = floatval($fraistransaction) * $montant * 1/100;
+           $total = $montant - $frais;
+           return $total;
+       })->sum();
+   }
+
+   return $mt;
+
+}
+
+#================================Transaction par marchand==================
+public function stateTransaction($periodeDebut=null, $periodeFin=null, $type=null)
+{
+    $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('user_id', auth()->user()->id)
+                                    ->when($periodeDebut, function ($query) use ($periodeDebut) {
+                                        return $query->whereDate("created_at",'>=', $periodeDebut);
+                                    })
+                                    ->when($periodeFin, function ($query) use ($periodeFin) {
+                                        return $query->whereDate("created_at",'<=', $periodeFin);
+                                    })->where('type', $type)->get();
+   
+            if ($montant_total->count() == 0 || $montant_total->count() == null) {
+                $mt = 0;
+            }else {
+                $mt = $montant_total->map(function($item){
+                    $montant = $item->transacmontant;
+                    $fraistransaction = $item->fraistransaction;
+                    $frais = floatval($fraistransaction) * $montant * 1/100;
+                    $total = $montant + $frais;
+                    return $total;
+                })->sum();
+            }
+
+                return $mt;
+
+}
+
+public function stateSoldeRetrait($periodeDebut=null, $periodeFin=null)
+{
+    $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('user_id', auth()->user()->id)
+                                ->when($periodeDebut, function ($query) use ($periodeDebut) {
+                                    return $query->whereDate("created_at",'>=', $periodeDebut);
+                                })
+                                ->when($periodeFin, function ($query) use ($periodeFin) {
+                                    return $query->whereDate("created_at",'<=', $periodeFin);
+                                })->where('type','retrait')->get();
+   
+   if ($montant_total->count() == 0 || $montant_total->count() == null) {
+       $mt = 0;
+   }else {
+       $mt = $montant_total->map(function($item){
+           $montant = $item->transacmontant;
+           $fraistransaction = $item->fraistransaction;
+           $frais = floatval($fraistransaction) * $montant * 1/100;
+           $total = $montant + $frais;
+           return $total;
+       })->sum();
+   }
+
+    return $mt;
+
+}
+
+public function stateSoldeTransaction($periodeDebut=null, $periodeFin=null)
+{
+    $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('user_id', auth()->user()->id)
+                                ->when($periodeDebut, function ($query) use ($periodeDebut) {
+                                    return $query->whereDate("created_at",'>=', $periodeDebut);
+                                })
+                                ->when($periodeFin, function ($query) use ($periodeFin) {
+                                    return $query->whereDate("created_at",'<=', $periodeFin);
+                                })->where('type','depot')->get();
+   
+   if ($montant_total->count() == 0 || $montant_total->count() == null) {
+       $mt = 0;
+   }else {
+       $mt = $montant_total->map(function($item){
+           $montant = $item->transacmontant;
+           $fraistransaction = $item->fraistransaction;
+           $frais = floatval($fraistransaction) * $montant * 1/100;
+           $total = $montant - $frais;
+           return $total;
+       })->sum();
+   }
+
+   return $mt;
+
+}
+
     
 
 }

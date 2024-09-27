@@ -23,19 +23,18 @@ class DashboardController extends Controller
         $nom_marchand = $marchand->nom; 
         $marchand_id = $marchand->id; 
         $service_status = $marchand->service_status; 
-        
         if(auth()->user()->role == 'superAdmin'){
             if ($service_status == 1) {
-                $retraits = DB::connection('mysql2')->table('transactions')->select('transacmontant', 'created_at')->where('type', 'retrait')->where('statut', '=', 'SUCCESS')->get();
-                $depots = DB::connection('mysql2')->table('transactions')->select('transacmontant', 'created_at')->where('type', 'depot')->where('statut', '=', 'SUCCESS')->get();
+                $retraits = DB::connection('mysql2')->table('view_graph_transactions')->select('transacmontant', 'created_at')->where('type', 'retrait')->where('statut', '=', 'SUCCESS')->get();
+                $depots = DB::connection('mysql2')->table('view_graph_transactions')->select('transacmontant', 'created_at')->where('type', 'depot')->where('statut', '=', 'SUCCESS')->get();
                 $GetTransacs = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'SUCCESS')->get();
                 $transactions = DB::connection('mysql2')->table('transactions')->get()->count();
                 $total_success = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'SUCCESS')->get()->count();
                 $total_failed = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'FAILED')->get()->count();
                 $solde = DB::connection('mysql2')->table('transactions')->where('type','depot')->where('statut', '=', 'SUCCESS')->sum('transacmontant');
             } else {
-                $retraits = Transaction::where('type', 'retrait')->select('transacmontant', 'created_at')->where('statut', '=', 'SUCCESS')->get();
-                $depots = Transaction::where('type', 'depot')->select('transacmontant', 'created_at')->where('statut', '=', 'SUCCESS')->get();
+                $retraits = DB::table('view_graph_transactions')->select('transacmontant', 'created_at')->select('transacmontant', 'created_at')->where('statut', '=', 'SUCCESS')->get();
+                $depots = DB::table('view_graph_transactions')->select('transacmontant', 'created_at')->select('transacmontant', 'created_at')->where('statut', '=', 'SUCCESS')->get();
                 $GetTransacs = Transaction::where('marchand_id', '!=', '')->where('statut', '=', 'SUCCESS')->get();
                 $transactions = Transaction::where('marchand_id', '!=', '')->get()->count();
                 $total_success = Transaction::where('statut', '=', 'SUCCESS')->get()->count();
@@ -44,15 +43,15 @@ class DashboardController extends Controller
             }
         }else{
             if ($service_status == 1) {
-                $retraits = DB::connection('mysql2')->table('transactions')->select('transacmontant', 'created_at')->where('type', 'retrait')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get();
-                $depots = DB::connection('mysql2')->table('transactions')->select('transacmontant', 'created_at')->where('type', 'depot')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get();
+                $retraits = DB::connection('mysql2')->table('view_graph_transactions')->select('transacmontant', 'created_at')->where('type', 'retrait')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get();
+                $depots = DB::connection('mysql2')->table('view_graph_transactions')->select('transacmontant', 'created_at')->where('type', 'depot')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get();
                 $transactions = DB::connection('mysql2')->table('transactions')->where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
                 $total_success = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
                 $total_failed = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'FAILED')->where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
                 $solde = DB::connection('mysql2')->table('transactions')->where('type','depot')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->sum('transacmontant');
             } else {
-                $retraits = Transaction::select('transacmontant', 'created_at')->where('type', 'retrait')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get();
-                $depots = Transaction::select('transacmontant', 'created_at')->where('type', 'depot')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get();
+                $retraits = DB::table('view_graph_transactions')->select('transacmontant', 'created_at')->where('type', 'retrait')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get();
+                $depots = DB::table('view_graph_transactions')->select('transacmontant', 'created_at')->where('type', 'depot')->where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get();
                 $transactions = Transaction::where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
                 $total_success = Transaction::where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
                 $total_failed = Transaction::where('statut', '=', 'FAILED')->where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
@@ -158,5 +157,25 @@ class DashboardController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function soldeTransaction($marchand_id){
+
+        $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('type','depot')->where('marchand_id', '=', $marchand_id)->get();
+       
+       if ($montant_total->count() == 0 || $montant_total->count() == null) {
+           $mt = 0;
+       }else {
+           $mt = $montant_total->map(function($item){
+               $montant = $item->transacmontant;
+               $fraistransaction = $item->fraistransaction;
+               $frais = floatval($fraistransaction) * $montant * 1/100;
+               $total = $montant - $frais;
+               return $total;
+           })->sum();
+       }
+
+       return $mt;
+
     }
 }

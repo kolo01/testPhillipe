@@ -32,7 +32,7 @@
                                 </select>
                             </div>
                             <div class="form-group col-md-2">
-                                <label for="type">TYPE</label>
+                                <label for="type">Type</label>
                                 <select name="type" id="type" class="form-control">
                                     <option value="">Choisir</option>
                                     <option value="retrait">Retrait</option>
@@ -51,11 +51,15 @@
                                 <button type="submit" class="btn btn-primary btn-block">Rechercher</button>
                             </div>
                         </div>
-                        {{-- <div class="form-row mt-3">
-                            <div class="form-group col-md-12">
-                                <button type="button" class="btn btn-success btn-block"> <i class="fas fa-file-excel" style="color: #fff"></i> Exporter le document </button>
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <div class="p-2 border bg-light">      
+                                    <p class="text-center" style="color:#3498DB;font-weight:bolder;font-size:100%;text-transform:uppercase;">
+                                        Nombre de Transaction: {{$totalTransactions}}
+                                    </p>
+                                </div>
                             </div>
-                        </div> --}}    
+                        </div>
                     </form>
                     <form action="{{route('export.excel')}}" method="post">
                         @csrf
@@ -81,14 +85,16 @@
                                     <th scope="col">Mode paiement</th>
                                     <th scope="col">Date</th>
                                     <th scope="col" class="m2_hide">Description</th>
+                                    <th scope="col">Tel.</th>
                                     <th scope="col" class="m2_hide">Montant</th>
-                                    <!--<th scope="col" class="">Identifiant de transaction</th> -->
+                                    <th scope="col">Frais</th>
+                                    <th scope="col" class="">Type</th>
                                     <th scope="col" class="m2_hide">Statut</th>
                                     <th scope="col" class="m2_hide">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- tr block -->
+                                  
                                     @php
                                         $i=1;
                                     @endphp
@@ -118,7 +124,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="m2_hide">{{App\Models\Marchand::find($transaction->marchand_id)->nom ?? ""}}</td>
+                                        <td class="m2_hide">{{$transaction->marchand_nom ?? ""}}</td>
                                         <td class="m2_hide">
                                             <div class="prt_leads">
                                                 
@@ -139,33 +145,37 @@
                                                     @endif
                                             </div>
                                         </td>
+                                        @php
+                                        $montant = $transaction->transacmontant;
+                                        $fraistransaction = $transaction->fraistransaction;
+                                        $frais = floatval($fraistransaction) * $montant * 1/100;
+                                        $montant_paye = $montant - $frais;
+                                        $montant_retrait = $montant + $frais;
+                                        $montant = $transaction->type == 'retrait' ? $montant_retrait : $montant_paye;
+                                        $type = $transaction->type == 'retrait' ? "Retrait" : "Paiement";
+                                        $id_transac = base64_encode($transaction->merchant_transaction_id);
+                                        $tel = $transaction->type == "retrait" ? App\Models\RetraitMarchand::where('notif_token',$transaction->merchant_transaction_id)->first()->telephone ?? "" : \DB::table('info_transactions')->where('transaction_order_id', $transaction->merchant_transaction_id)->first()->client_phone ?? "";
+                                        @endphp
                                         <td class="m2_hide">
                                             <div class="prt_leads"><span>{{date('d/m/Y H:i:s', strtotime($transaction->created_at))}}</span></div>
                                         </td>
                                         <td class="m2_hide">
                                             <div class="prt_leads"><span>Reçu du référent client: {{$transaction->merchant_transaction_id}}</span></div>
                                         </td>
+                                        <td class="m2_hide">{{$tel}}</td>
                                         <td class="m2_hide"> 
-                                              @php
-                                                 $montant = $transaction->transacmontant;
-                                                 $fraistransaction = $transaction->fraistransaction;
-                                                 $frais = floatval($fraistransaction) * $montant * 1/100;
-                                                 $montant_paye = $montant - $frais;
-                                                 $montant_retrait = $montant + $frais;
-                                                 $montant = $transaction->type == 'retrait' ? $montant_retrait : $montant_paye;
-                                                 $id_transac = base64_encode($transaction->merchant_transaction_id);
-                                              @endphp
-                                              
-
                                             <div class="_leads_view_title" class="text-truncate">
                                                 <span>
                                                  {{$transaction->type == 'retrait' ? "-" : ""}}@if(isset($montant)){{number_format($montant, 0, ' ', ' ')}} @else {{$montant ?? ""}} @endif xof
                                                 </span>
                                             </div>
                                         </td>
-                                     <!--  <td class="m2_hide">
-                                            <div class="_leads_view_title"><span>{{$transaction->merchant_transaction_id}}</span></div>
-                                        </td>  -->
+                                        <td class="m2_hide">
+                                            <div class="prt_leads">{{$frais}}</div>
+                                        </td>
+                                        <td class="m2_hide">
+                                            <span class="text-truncate" style="background:#d2e259;color:#fff;padding:5px;">  {{$type}}</span>
+                                        </td> 
                                         <td class="m2_hide">
                                             <div class="_leads_view_title">
                                               @if ($transaction->statut == 'INITIATE' || $transaction->statut == 'INITIATED' || $transaction->statut == 'PENDING' || $transaction->statut == 'processing' )

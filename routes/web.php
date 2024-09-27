@@ -82,6 +82,8 @@ Route::middleware('auth','web')->group(function () {
     Route::get('/sms', [CompteController::class, 'sms'])->name('get.sms');
     Route::get('/liste-des-operateurs', [OperateurController::class, 'operateur'])->name('liste.operateur');
     Route::get('/suvi-des-transactions', [TransactionController::class, 'transactions'])->name('liste.transactions');
+    Route::get('/statistique', [TransactionController::class, 'statistique'])->name('liste.statistique');
+    Route::post('/search-statistique', [TransactionController::class, 'statistiqueSearch'])->name('liste.statistiqueSearch');
     //----26/10/2023
     Route::get('/detail-transactions/{id}', [TransactionController::class, 'detailtransaction'])->name('detail.transaction');
     Route::post('/export-excel',  [TransactionController::class, 'exportExcel'])->name('export.excel');
