@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthOtpController;
+use App\Http\Controllers\CommercialController;
 use App\Http\Controllers\MarchandController;
 use App\Http\Controllers\CompteController;
 use App\Http\Controllers\OperateurController;
@@ -88,7 +89,11 @@ Route::middleware('auth','web')->group(function () {
     Route::get('/detail-transactions/{id}', [TransactionController::class, 'detailtransaction'])->name('detail.transaction');
     Route::post('/export-excel',  [TransactionController::class, 'exportExcel'])->name('export.excel');
     Route::post('/search-transactions',  [TransactionController::class, 'SearchTransactions'])->name('search.transactions');
-    
+
+
+    // commerciaux interface
+    Route::get('/suivi-affilier', [CommercialController::class, 'index'])->name('commercial.dashboard');
+
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('user.logout');

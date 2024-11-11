@@ -12,6 +12,11 @@ class Marchand extends Model
     protected $table = 'marchands';
 
     protected $guarded = [];
-   
+
     public $timestamps = false;
+
+    public function GetCommercial() {
+      return $this->belongsTo(commercial::class, 'commercial_id');
+    }
+
 }
