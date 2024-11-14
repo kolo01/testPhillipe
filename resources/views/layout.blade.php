@@ -78,15 +78,7 @@
                                                     class="fa fa-home fa-lg" style="color: #2471A3;"></i>Dashboard</a>
                                         </li>
                                     @else
-                                        <li class="{{ Route::currentRouteName() == 'profil.info' ? 'active' : '' }}">
-                                            <a class="nav_text" href="{{ route('profil.info') }}"><i
-                                                    class="fa fa-user fa-lg" style="color: #9972e6;"></i>Mon compte</a>
-                                        </li>
-                                        <li class=""><a class="nav_text" target="_blank"
-                                                href="https://documenter.getpostman.com/view/12042091/2s93sW7FD9"><i
-                                                    class="fa fa-file-code fa-lg"
-                                                    style="color: #9972e6;"></i>Documentation</a></li>
-                                        <li style="height: 20rem;"></li>
+
 
                                     <li class="{{ Route::currentRouteName() == 'dashboard.index' ? 'active' : '' }}">
                                         <a class="nav_text" href="{{ route('dashboard.index') }}"><i
@@ -107,6 +99,11 @@
                                         <a class="nav_text" href="{{ route('view.transaction.manager') }}"><i
                                                 class="ti-wallet fa-lg" style="color:#F86F03;"></i>Gérer mes fonds</a>
                                     </li>
+                                    <li
+                                    class="{{ Route::currentRouteName() == 'marchand.ribindex' ? 'active' : '' }}">
+                                    <a class="nav_text" href="{{ route('marchand.ribindex') }}"><i
+                                            class="ti-money fa-lg" style="color:blue;"></i>Retrait avec RIB</a>
+                                </li>
                                     <li class="{{ Route::currentRouteName() == 'view.depot' ? 'active' : '' }}"><a
                                             class="nav_text" href="{{ route('view.depot') }}"><i
                                                 class="fa fa-file fa-lg" style="color:green;"></i>Dépôt</a></li>

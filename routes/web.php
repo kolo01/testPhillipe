@@ -93,6 +93,10 @@ Route::middleware('auth','web')->group(function () {
 
     // commerciaux interface
     Route::get('/suivi-affilier', [CommercialController::class, 'index'])->name('commercial.dashboard');
+    //Route pour modifier rib dans le profil
+    Route::post('/modifier-rib', [CompteController::class, 'updateRib'])->name('profil.updateRib');
+    Route::get('/retrait-rib', [CompteController::class, 'indexRIB'])->name('marchand.ribindex');
+    Route::post('/save-retrait', [CompteController::class, 'saveRetrait'])->name('marchand.ribRetraitSave');
 
 });
 
