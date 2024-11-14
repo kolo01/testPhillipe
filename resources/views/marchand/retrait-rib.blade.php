@@ -3,6 +3,7 @@
 @section('content')
     <div class="col-lg-9 col-md-8 mt-3">
         <div class="dashboard-body">
+          @if(auth()->user()->role == "admin")
             <div class="dashboard-wraper mb-5">
                 <div class="row">
                     <!-- Submit Form -->
@@ -116,7 +117,7 @@
                 </div>
             </div>
             <!-- row -->
-
+            @endif
             <div class="row mt-5" >
               <div class="col-lg-12 col-md-12">
                   <div class="dashboard_property">
@@ -165,8 +166,8 @@
                                       @if(auth()->user()->role == "superAdmin")
                                       <td>
                                           @if($transacation->status  == 'EN COURS')
-                                            <a href="{{ route('marchand.transfert', ['id' => $transacation->id]) }}" class="btn btn-sm btn-primary" onclick="return confirm('Êtes-vous sûr de vouloir confirmer le retrait de {{$transacation->amount}} demandé par le marchand {{\App\Models\Marchand::find($transacation->marchand_id)->nom}}  ?');"><i class="fas fa-check"></i></a>
-                                            <a href="{{ route('marchand.canceltransfert', ['id' => $transacation->id]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler le retrait de {{$transacation->amount}} demandé par le marchand {{\App\Models\Marchand::find($transacation->marchand_id)->nom}}?');"><i class="fas fa-times"></i></a>
+                                            <a href="{{ route('transfert.rib', ['id' => $transacation->id]) }}" class="btn btn-sm btn-primary" onclick="return confirm('Êtes-vous sûr de vouloir confirmer le retrait de {{$transacation->amount}} demandé par le marchand {{\App\Models\Marchand::find($transacation->marchand_id)->nom}}  ?');"><i class="fas fa-check"></i></a>
+                                            <a href="{{ route('transfert.ribcancel', ['id' => $transacation->id]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler le retrait de {{$transacation->amount}} demandé par le marchand {{\App\Models\Marchand::find($transacation->marchand_id)->nom}}?');"><i class="fas fa-times"></i></a>
                                           @endif
                                      </td>
 

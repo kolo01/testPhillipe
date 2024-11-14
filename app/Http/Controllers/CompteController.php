@@ -489,4 +489,32 @@ class CompteController extends Controller
     $id = DB::table('retrait_ribs')->insertGetId($data);
     return redirect()->back()->with('success', 'Le RIB a été modifié avec succès.');
   }
+
+
+  public function acceptPaiement($index){
+    // Accepter le paiement
+   $allInfo=  DB::table('retrait_ribs')
+    ->where('id', $index)
+    ->update([
+        'status' => "SUCCES",
+        'updatedAt' => now(),
+    ]);
+    // dd($allInfo);
+    return redirect()->route('marchand.ribindex')->with('success', 'Paiement accepté avec succès.');
+  }
+
+
+  public function cancelPaiement($index){
+    $allInfo=  DB::table('retrait_ribs')
+    ->where('id', $index)
+    ->update([
+        'status' => "ECHOUE",
+        'updatedAt' => now(),
+    ]);
+    // dd($allInfo);
+    return redirect()->route('marchand.ribindex')->with('success', 'Paiement accepté avec succès.');
+  }
+
+
+
 }

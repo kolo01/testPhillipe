@@ -97,6 +97,8 @@ Route::middleware('auth','web')->group(function () {
     Route::post('/modifier-rib', [CompteController::class, 'updateRib'])->name('profil.updateRib');
     Route::get('/retrait-rib', [CompteController::class, 'indexRIB'])->name('marchand.ribindex');
     Route::post('/save-retrait', [CompteController::class, 'saveRetrait'])->name('marchand.ribRetraitSave');
+    Route::get('/confirm-retrait-rib/{id}', [CompteController::class, 'acceptPaiement'])->name('transfert.rib');
+    Route::get('/cancel-retrait-rib/{id}', [CompteController::class, 'cancelPaiement'])->name('transfert.ribcancel');
 
 });
 
