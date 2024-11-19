@@ -5,7 +5,7 @@
             <div class="clearfix mb-3"></div>
             <div class="row">
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{route('search.transactions')}}" method="post">
+                    <form action="{{route('search.transactions')}}" id="FormRechtransaction" method="post">
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-4">
@@ -48,14 +48,14 @@
                                 <input type="date" class="form-control" id="periode_fin" name="periode_fin">
                             </div>
                             <div class="form-group col-md-4 align-self-end">
-                                <button type="submit" class="btn btn-primary btn-block">Rechercher</button>
+                                <button type="submit" id="" class="btn btn-primary btn-block">Rechercher</button>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="col-md-12">
                                 <div class="p-2 border bg-light">      
                                     <p class="text-center" style="color:#3498DB;font-weight:bolder;font-size:100%;text-transform:uppercase;">
-                                        Nombre de Transaction: {{$totalTransactions}}
+                                        Nombre de Transaction: <span id="nb">{{$totalTransactions}}</span>
                                     </p>
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                         @csrf
                         <div class="form-row mt-3">
                             <div class="form-group col-md-12">
-                                <input type="hidden" name="results" value="{{json_encode($transactions)}}">
+                                <input type="hidden" name="results" id="results" value="{{json_encode($transactions)}}">
                                 <button type="submit" class="btn btn-success btn-block"> <i class="fas fa-file-excel" style="color: #fff"></i> Exporter le document </button>
                             </div>
                         </div>
@@ -74,8 +74,8 @@
             </div> 
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12">
-                    <div class="dashboard_property">
-                        <div class="table-responsive overflow-auto" style=" overflow: auto;">
+                    <div class="dashboard_property listetransaction chargement text-center justify-content-center">
+                        {{-- <div class="table-responsive overflow-auto" style=" overflow: auto;">
                             <table class="table table-responsive overflow-auto" id="myTable" data-order-test='[[ 1, "desc" ]]'>
                                 <thead class="thead-dark">
                                     <tr>
@@ -93,8 +93,7 @@
                                     <th scope="col" class="m2_hide">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                  
+                                <tbody class="listetransaction chargement">
                                     @php
                                         $i=1;
                                     @endphp
@@ -192,14 +191,13 @@
                                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                             </a>
                                         </td> 
-                                
                                     </tr>    
                                     @endforeach
                                 </tbody>
 
                             </table>
 
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -207,4 +205,16 @@
         </div>
             
     </div>
+    
 @endsection
+{{-- page scripts --}}
+@section('page-scripts')
+<script>
+    var html = @json($html);
+    var loader = "<img src='{{asset('assets/loading/loading.gif')}}' style='width:65px; height:65px;text-align:center;justify-content:center;' />";
+    var searcht = "{{route('search.transactions')}}";
+    var pagination = "{{route('liste.transactions')}}";
+</script>
+<script src="{{ asset('assets/js/transaction.js?t=' . time()) }}"></script>
+@endsection
+{{-- end page scripts --}}

@@ -300,6 +300,7 @@
             Plotly.newPlot(TESTER, data);
 
         </script>
+         @yield('page-scripts')
       
 	</body>
     

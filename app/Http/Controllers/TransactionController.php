@@ -17,137 +17,138 @@ class TransactionController extends Controller
     
     public function transactions()
     {    
-       // $transactions = Transaction::where('id','!=', '')->orderby('created_at','desc')->get();
-                // Récupérer les paramètres de recherche depuis la requête
-                $periodeDebut = request()->input('periode_debut');
-                $periodeFin = request()->input('periode_fin');
-                $modepaiement = request()->input('modepaiement');
-                $idpaie = request()->input('id_paie');
-                $statut = request()->input('status');
-                $type = request()->input('type');
-                $marchand =  Marchand::find(auth()->user()->marchand_id);
-                $nom_marchand = $marchand->nom; 
-                $marchand_id = $marchand->id; 
-                $service_status = $marchand->service_status; 
-               
-                if ($service_status == 1) {
-                    $transactions = DB::connection('mysql2')->table('transactions')->where('marchand_id', auth()->user()->marchand_id);
-                    $all_transactions = DB::connection('mysql2')->table('transactions');
-                    $infotransaction = DB::connection('mysql2')->table('info_transactions');
-                } else {
-                    // $transactions = Transaction::where('marchand_id', auth()->user()->marchand_id);
-                    // $all_transactions = Transaction::query();
-                    // $infotransaction = DB::table('info_transactions');
-                    $transactions = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id);
-                    $all_transactions = DB::table('view_transactions');
-                    $infotransaction = DB::table('info_transactions');
-              
-                }
+        ini_set('max_execution_time', '600'); 
+        // Récupérer les paramètres de recherche depuis la requête
+        $periodeDebut = request()->input('periode_debut');
+        $periodeFin = request()->input('periode_fin');
+        $modepaiement = request()->input('modepaiement');
+        $idpaie = request()->input('id_paie');
+        $statut = request()->input('status');
+        $type = request()->input('type');
+        $marchand =  Marchand::find(auth()->user()->marchand_id);
+        $nom_marchand = $marchand->nom; 
+        $marchand_id = $marchand->id; 
+        $service_status = $marchand->service_status; 
+        
+        if ($service_status == 1) {
+            $transactions = DB::connection('mysql2')->table('transactions')->where('marchand_id', auth()->user()->marchand_id);
+            $all_transactions = DB::connection('mysql2')->table('transactions');
+            $infotransaction = DB::connection('mysql2')->table('info_transactions');
+        } else {
+            $transactions = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id);
+            $all_transactions = DB::table('view_transactions');
+            $infotransaction = DB::table('info_transactions');
+        
+        }
 
-                $query =   auth()->user()->role == 'superAdmin' ?  $all_transactions : $transactions;
-                 // Effectuer la recherche
-                $trQuery = $query
-                    ->when($periodeDebut, function ($query) use ($periodeDebut) {
-                        return $query->whereDate("created_at",'>=', $periodeDebut);
-                    })
-                    ->when($periodeFin, function ($query) use ($periodeFin) {
-                        return $query->whereDate("created_at",'<=', $periodeFin);
-                    })
-                    ->when($modepaiement, function ($query) use ($modepaiement) {
-                        return $query->where('modepaiement', $modepaiement);
-                    })
-                    ->when($statut, function ($query) use ($statut) {
-                        return $query->where('statut', $statut);
-                    })
-                    ->when($idpaie, function ($query) use ($idpaie) {   
-                        return $query->where('merchant_transaction_id',$idpaie);
-                    })
-                    ->when($type, function ($query) use ($type) {
-                        return $query->where('type', $type);
-                    });
-                    
-                    $totalTransactions = $trQuery->count();
-                    // Get the paginated transactions
-                    $transactions = $trQuery->orderby('created_at', 'desc')->paginate(50);
-
-                    // $transactions->getCollection()->transform(function ($transaction) {
-                    //     $transaction->frais = $transaction->transacmontant * $transaction->fraistransaction;
-                    //     return $transaction;
-                    // });
+        $query = auth()->user()->role == 'superAdmin' ?  $all_transactions : $transactions;
+            // Effectuer la recherche
+        $trQuery = $query
+            ->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate("created_at",'>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate("created_at",'<=', $periodeFin);
+            })
+            ->when($modepaiement, function ($query) use ($modepaiement) {
+                return $query->where('modepaiement', $modepaiement);
+            })
+            ->when($statut, function ($query) use ($statut) {
+                return $query->where('statut', $statut);
+            })
+            ->when($idpaie, function ($query) use ($idpaie) {   
+                return $query->where('merchant_transaction_id',$idpaie);
+            })
+            ->when($type, function ($query) use ($type) {
+                return $query->where('type', $type);
+            });
+            
+            $totalTransactions = $trQuery->count();
+            // Get the paginated transactions
+            $transactions_excel = $trQuery->orderby('created_at', 'desc')->get();
+            session(['transactions' => $transactions_excel]);
+            $transactions = $trQuery->orderby('created_at', 'desc')->paginate(5);
+            $html = view('transaction.data', compact('transactions','totalTransactions'))->render();
+    
+            if (request()->ajax()) {
+                return response()->json($html);
+            }
                   
-        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions'));
+        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions', 'html'));
     }
 
 
     public function SearchTransactions(Request $request)
     {    
-       // $transactions = Transaction::where('id','!=', '')->orderby('created_at','desc')->get();
-                // Récupérer les paramètres de recherche depuis la requête
-                $periodeDebut = request()->input('periode_debut');
-                $periodeFin = request()->input('periode_fin');
-                $modepaiement = request()->input('modepaiement');
-                $idpaie = request()->input('id_paie');
-                $statut = request()->input('status');
-                $type = request()->input('type');
-                $marchand =  Marchand::find(auth()->user()->marchand_id);
-                $nom_marchand = $marchand->nom; 
-                $marchand_id = $marchand->id; 
-                $service_status = $marchand->service_status; 
-               
-                if ($service_status == 1) {
-                    $transactions = DB::connection('mysql2')->table('transactions')->where('marchand_id', auth()->user()->marchand_id);
-                    $all_transactions = DB::connection('mysql2')->table('transactions');
-                    $infotransaction = DB::connection('mysql2')->table('info_transactions');
-                } else {
-                    // $transactions = Transaction::where('marchand_id', auth()->user()->marchand_id);
-                    // $all_transactions = Transaction::query();
-                    // $infotransaction = DB::table('info_transactions');
-                    $transactions = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id);
-                    $all_transactions = DB::table('view_transactions');
-                    $infotransaction = DB::table('info_transactions');
-              
-                }
+        ini_set('max_execution_time', '600'); 
+        // Récupérer les paramètres de recherche depuis la requête
+        $periodeDebut = request()->input('periode_debut');
+        $periodeFin = request()->input('periode_fin');
+        $modepaiement = request()->input('modepaiement');
+        $idpaie = request()->input('id_paie');
+        $statut = request()->input('status');
+        $type = request()->input('type');
+        $marchand =  Marchand::find(auth()->user()->marchand_id);
+        $nom_marchand = $marchand->nom; 
+        $marchand_id = $marchand->id; 
+        $service_status = $marchand->service_status; 
+        
+        if ($service_status == 1) {
+            $transactions = DB::connection('mysql2')->table('transactions')->where('marchand_id', auth()->user()->marchand_id);
+            $all_transactions = DB::connection('mysql2')->table('transactions');
+            $infotransaction = DB::connection('mysql2')->table('info_transactions');
+        } else {
+            $transactions = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id);
+            $all_transactions = DB::table('view_transactions');
+            $infotransaction = DB::table('info_transactions');
+        
+        }
 
-                $query =   auth()->user()->role == 'superAdmin' ?  $all_transactions : $transactions;
-                 // Effectuer la recherche
-                $trQuery = $query
-                    ->when($periodeDebut, function ($query) use ($periodeDebut) {
-                        return $query->whereDate("created_at",'>=', $periodeDebut);
-                    })
-                    ->when($periodeFin, function ($query) use ($periodeFin) {
-                        return $query->whereDate("created_at",'<=', $periodeFin);
-                    })
-                    ->when($modepaiement, function ($query) use ($modepaiement) {
-                        return $query->where('modepaiement', $modepaiement);
-                    })
-                    ->when($statut, function ($query) use ($statut) {
-                        return $query->where('statut', $statut);
-                    })
-                    ->when($idpaie, function ($query) use ($idpaie) {
-                        return $query->where('merchant_transaction_id',$idpaie);
-                    })
-                    ->when($type, function ($query) use ($type) {
-                        return $query->where('type', $type);
-                    }); 
+        $query =   auth()->user()->role == 'superAdmin' ?  $all_transactions : $transactions;
+            // Effectuer la recherche
+        $trQuery = $query
+            ->when($periodeDebut, function ($query) use ($periodeDebut) {
+                return $query->whereDate("created_at",'>=', $periodeDebut);
+            })
+            ->when($periodeFin, function ($query) use ($periodeFin) {
+                return $query->whereDate("created_at",'<=', $periodeFin);
+            })
+            ->when($modepaiement, function ($query) use ($modepaiement) {
+                return $query->where('modepaiement', $modepaiement);
+            })
+            ->when($statut, function ($query) use ($statut) {
+                return $query->where('statut', $statut);
+            })
+            ->when($idpaie, function ($query) use ($idpaie) {
+                return $query->where('merchant_transaction_id',$idpaie);
+            })
+            ->when($type, function ($query) use ($type) {
+                return $query->where('type', $type);
+            }); 
 
-                    $totalTransactions = $trQuery->count();
+            $totalTransactions = $trQuery->count();
 
-                    $transactions = $trQuery->orderby('created_at', 'desc')->get();
-                  
+            $transactions_excel = $trQuery->orderby('created_at', 'desc')->get();
+            session(['transactions' => $transactions_excel]);
+            $transactions = $trQuery->orderby('created_at', 'desc')->paginate(5);
+            $html = view('transaction.data', compact('transactions','totalTransactions'))->render();
 
-        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions'));
+            return response()->json($html);
+       // return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions'));
     }
 
 
     public function exportExcel(Request $request)
-    {
+    {   ini_set('max_execution_time', '1200'); //20 Min
         // Récupérer les transactions à partir des données JSON envoyées dans la requête
         $transactions = json_decode($request->input('results'), true);
+        $transactions_excel = session('transactions');
+        //dd($transactions_excel);
         // Définir le nom du fichier avec l'extension CSV
         $filename = "export_transaction_" . date('Y-m-d_H-i-s') . ".xls";
         // Générer le contenu CSV
-        $transactions = (object)$transactions;
-        //dd($transactions);
+        $transactions = (object)$transactions_excel;
+        
         //$csvContent = View::make('transaction.export', compact('transactions'))->render();
         header("Content-transitaire: application/vnd.ms-excel; charset=iso-8859-1");
         header("Content-disposition: attachment; filename=$filename");
