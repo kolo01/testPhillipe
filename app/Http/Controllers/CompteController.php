@@ -6,11 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Http\Traits\sendSMS;
+use App\Mail\RetraitRib;
+use App\Mail\RetraitRibValidate;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Log;
 use App\Models\Marchand;
 use Datetime;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class CompteController extends Controller
 {
@@ -469,6 +472,7 @@ class CompteController extends Controller
     $request->validate([
       'amount' => 'required|max:10',
     ]);
+    $email = "konedieu5@gmail.com";
     // Sauvegarder le retrait
     $encodedData = array();
     array_push($encodedData, auth()->user()->username);
@@ -487,6 +491,7 @@ class CompteController extends Controller
     ];
 
     $id = DB::table('retrait_ribs')->insertGetId($data);
+    Mail::to($email)->send(new RetraitRib(auth()->user()->username,$request->amount,auth()->user()->telephone));
     return redirect()->back()->with('success', 'Le RIB a été modifié avec succès.');
   }
 
@@ -500,6 +505,19 @@ class CompteController extends Controller
         'updatedAt' => now(),
     ]);
     // dd($allInfo);
+    $request= DB::table('retrait_ribs')
+    ->where('id', $index)
+    ->first();
+    // $email = $request->trace;
+
+    $encodedData = json_decode($request->trace);
+
+    // dd($encodedData);
+
+
+    // $id = DB::table('retrait_ribs')->insertGetId($data);
+
+    Mail::to($encodedData[2])->send(new RetraitRibValidate($encodedData[0],$request->amount,$encodedData[1]));
     return redirect()->route('marchand.ribindex')->with('success', 'Paiement accepté avec succès.');
   }
 
