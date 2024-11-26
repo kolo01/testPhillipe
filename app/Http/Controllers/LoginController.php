@@ -23,7 +23,7 @@ class LoginController extends Controller
      */
 
      use generateOtp, sendSMS;
-    
+
     public function login(Request $request)
     {
            return view('auth.login-by-phone');
@@ -36,9 +36,9 @@ class LoginController extends Controller
 
         // Generate OTP
     public function generate(Request $request)
-    {    
+    {
         $connexion_mode = isset($request->connexion_mode) ? $request->connexion_mode  : "aucun";
-      
+
         if ($connexion_mode == 'telephone') {
             // Vérifier si la valeur est un chiffre
             if (is_numeric($request->telephone)) {
@@ -54,8 +54,8 @@ class LoginController extends Controller
 
                     $message = "Bpay - code de validation: ".$verificationCode->otp.". Ne partagez ce code qu'avec un agent Bpay lors d'une transaction. Ce code expire dans 5 minutes.";
                     $this->sendSmsOtp($request->telephone, $message);
-                    # Return With OTP 
-                    return redirect()->route('otp.verification', ['code' => $verificationCode->user_code])->with('success',  $message); 
+                    # Return With OTP
+                    return redirect()->route('otp.verification', ['code' => $verificationCode->user_code])->with('success',  $message);
                 } else {
                     return redirect()->back()->with('error', "Le numero de téléphone doit etre égale à 10 chiffres.");
                 }
@@ -74,15 +74,15 @@ class LoginController extends Controller
 
                 $message = " ".$verificationCode->otp." ";
                 Mail::to($request->email)->send(new SendMailBpay($message));
-                # Return With OTP 
-                return redirect()->route('otp.verification', ['code' => $verificationCode->user_code])->with('success',  $message); 
+                # Return With OTP
+                return redirect()->route('otp.verification', ['code' => $verificationCode->user_code])->with('success',  $message);
             } else {
                 return redirect()->back()->with('error', "Veuillez saisir une adresse email valide.");
             }
         }else {
             return redirect()->back()->with('error', "Veuillez saisir un identifiant valide.");
         }
-        
+
 
     }
 
@@ -94,7 +94,7 @@ class LoginController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function verification($code)
-    {   
+    {
         return view('auth.otp-checking')->with([
             'code' => $code
         ]);
@@ -107,7 +107,7 @@ class LoginController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function loginWithOtp(Request $request)
-    {   
+    {
 
         $otp = $request->otp[0].''.$request->otp[1].''.$request->otp[2].''.$request->otp[3];
 
@@ -136,7 +136,9 @@ class LoginController extends Controller
             Auth::login($user);
 
            //Auth::attempt(['email'=>$user->email, 'password'=>$user->code]);
-            
+            if (Auth::user()->role == 'deposant') {
+              return redirect()->intended('/suivi-affilier');
+            }
             return redirect()->intended('/');
         }
 
@@ -159,7 +161,7 @@ class LoginController extends Controller
     public function generateOtpByEmail($email)
     {
         $user = User::where('email', $email)->first();
-    
+
         $verificationCode = VerificationCode::where('user_code', $user->code)->latest()->first();
 
         $now = Carbon::now();

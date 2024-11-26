@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthOtpController;
+use App\Http\Controllers\CommercialController;
 use App\Http\Controllers\MarchandController;
 use App\Http\Controllers\CompteController;
 use App\Http\Controllers\OperateurController;
@@ -88,7 +89,17 @@ Route::middleware('auth','web')->group(function () {
     Route::get('/detail-transactions/{id}', [TransactionController::class, 'detailtransaction'])->name('detail.transaction');
     Route::post('/export-excel',  [TransactionController::class, 'exportExcel'])->name('export.excel');
     Route::post('/search-transactions',  [TransactionController::class, 'SearchTransactions'])->name('search.transactions');
-    
+
+
+    // commerciaux interface
+    Route::get('/suivi-affilier', [CommercialController::class, 'index'])->name('commercial.dashboard');
+    //Route pour modifier rib dans le profil
+    Route::post('/modifier-rib', [CompteController::class, 'updateRib'])->name('profil.updateRib');
+    Route::get('/retrait-rib', [CompteController::class, 'indexRIB'])->name('marchand.ribindex');
+    Route::post('/save-retrait', [CompteController::class, 'saveRetrait'])->name('marchand.ribRetraitSave');
+    Route::get('/confirm-retrait-rib/{id}', [CompteController::class, 'acceptPaiement'])->name('transfert.rib');
+    Route::get('/cancel-retrait-rib/{id}', [CompteController::class, 'cancelPaiement'])->name('transfert.ribcancel');
+
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('user.logout');

@@ -73,7 +73,36 @@
                                             <label>Tranche  </label>
                                             <input type="text" min="1" max="4" name="tranche_transac" class="form-control" required>
                                         </div> 
+                                        @if($allCommercial->count()>0)
+                                            <div class="form-group col-lg-2 col-md-12">
+                                                <label>Commercial :  </label>
+                                                <select name="commercial_id"  value="{{ old('commercial_id') }}" class="form-control">
+                                                    @forelse ($allCommercial as $commercial)
+                                                    <option value={{$commercial->id}}>{{$commercial->username}}</option>
+                                                    @empty
+    
+                                                                <option value="" selected>Aucun commercial</option>
+    
+                                                    @endforelse
+                                                </select>
+    
+                                            </div> 
+
+                                        @else
+                                            <div class="form-group col-lg-2 col-md-12">
+                                                <label>Commercial  </label>
+                                                <select name="commercial_id"  value="{{ old('commercial_id') }}" class="form-control">
+                                                   
+    
+                                                                <option value="" selected>Aucun commercial</option>
+    
+                                                    
+                                                </select>
+    
+                                            </div> 
+
                                         
+                                        @endif
                                     </div>
                                 </div>
                             </div>
