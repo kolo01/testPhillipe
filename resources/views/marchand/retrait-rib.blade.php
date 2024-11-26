@@ -61,13 +61,21 @@
 
                                             <div class="form-group col-lg-6 col-sm-12">
                                                 <label>Contact</label>
-                                                <input type="number" name="contact" class="form-control"
-                                                    value="{{ $marchand ->contact }}" readonly>
+
+                                                    <div class="input-group mb-2">
+                                                      <span class="input-group-addon" style="border:1px solid #DDE6ED;font-weight:bold;">Numéro</span>
+                                                      <input type="number" name="contact" class="form-control"
+                                                      value="{{ $marchand ->contact }}" readonly>
+                                                  </div>
                                             </div>
 
                                             <div class="form-group col-lg-6 col-sm-12">
                                                 <label>Montant à retirer</label>
-                                                <input type="number" class="form-control" id="amount" name="amount" placeholder="0" >
+
+                                                <div class="input-group mb-2">
+                                                  <span class="input-group-addon" style="border:1px solid #DDE6ED;font-weight:bold;">F.CFA</span>
+                                                  <input type="number" class="form-control" id="amount" name="amount" placeholder="0" >
+                                              </div>
                                             </div>
 
                                         </div>
@@ -125,7 +133,7 @@
                           <div class="col-md-12 mb-3">
                              <h4 class="text-center">Liste des demandes de retraits</h4>
                           </div>
-                          <table id="myTable" class="table" data-order='[[ 1, "desc" ]]'>
+                          <table id="myTable" class="table" data-order='[[ 2, "desc" ]]'>
                               <thead class="thead-dark">
                                   <tr>
                                       <th scope="col">Initié par</th>
