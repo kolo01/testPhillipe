@@ -457,8 +457,8 @@ class CompteController extends Controller
   public function indexRib()
   {
     // Récupérer le RIB de l'utilisateur
-    $user= auth()->user();
-    $allTransacation= DB::table('retrait_ribs')->get();
+    $user = auth()->user();
+    $allTransacation = DB::table('retrait_ribs')->get();
     //  JSONencode(user firts& last & numero& mail)  "a mettre dans trace"
 
     $marchand = Marchand::find(auth()->user()->marchand_id);
@@ -491,23 +491,37 @@ class CompteController extends Controller
     ];
 
     $id = DB::table('retrait_ribs')->insertGetId($data);
-    Mail::to($email)->send(new RetraitRib(auth()->user()->username,$request->amount,auth()->user()->telephone));
+
+    // debut de la recuperation
+    $allSuperAdmin = DB::table('users')->where('role', 'superAdmin')->get()->all();
+
+
+    for ($i = 0; $i < count($allSuperAdmin); ++$i) {
+
+      Mail::to( $allSuperAdmin[$i]->email)->send(new RetraitRib(auth()->user()->username, $request->amount, auth()->user()->telephone));
+    }
+    // foreach ($allSuperAdmin as $key => $value) {
+    //   dd($value);
+    //
+    // }
+
     return redirect()->back()->with('success', 'Le RIB a été modifié avec succès.');
   }
 
 
-  public function acceptPaiement($index){
+  public function acceptPaiement($index)
+  {
     // Accepter le paiement
-   $allInfo=  DB::table('retrait_ribs')
-    ->where('id', $index)
-    ->update([
+    $allInfo =  DB::table('retrait_ribs')
+      ->where('id', $index)
+      ->update([
         'status' => "SUCCES",
         'updatedAt' => now(),
-    ]);
+      ]);
     // dd($allInfo);
-    $request= DB::table('retrait_ribs')
-    ->where('id', $index)
-    ->first();
+    $request = DB::table('retrait_ribs')
+      ->where('id', $index)
+      ->first();
     // $email = $request->trace;
 
     $encodedData = json_decode($request->trace);
@@ -517,22 +531,20 @@ class CompteController extends Controller
 
     // $id = DB::table('retrait_ribs')->insertGetId($data);
 
-    Mail::to($encodedData[2])->send(new RetraitRibValidate($encodedData[0],$request->amount,$encodedData[1]));
+    Mail::to($encodedData[2])->send(new RetraitRibValidate($encodedData[0], $request->amount, $encodedData[1]));
     return redirect()->route('marchand.ribindex')->with('success', 'Paiement accepté avec succès.');
   }
 
 
-  public function cancelPaiement($index){
-    $allInfo=  DB::table('retrait_ribs')
-    ->where('id', $index)
-    ->update([
+  public function cancelPaiement($index)
+  {
+    $allInfo =  DB::table('retrait_ribs')
+      ->where('id', $index)
+      ->update([
         'status' => "ECHOUE",
         'updatedAt' => now(),
-    ]);
+      ]);
     // dd($allInfo);
     return redirect()->route('marchand.ribindex')->with('success', 'Paiement accepté avec succès.');
   }
-
-
-
 }
