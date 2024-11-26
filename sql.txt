@@ -1,0 +1,6 @@
+
+
+
+table marchands : rib, commercial_id
+
+table retrait_ribs : marchand_id, amount, trace, status, createdAt, updatedAt
