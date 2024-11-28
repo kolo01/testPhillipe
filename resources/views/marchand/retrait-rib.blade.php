@@ -3,45 +3,41 @@
 @section('content')
     <div class="col-lg-9 col-md-8 mt-3">
         <div class="dashboard-body">
-          @if(auth()->user()->role == "admin")
+          @if(auth()->user()->role == "admin" || auth()->user()->role == "superAdmin")
             <div class="dashboard-wraper mb-5">
                 <div class="row">
                     <!-- Submit Form -->
                     <div class="col-lg-12 col-md-12">
-                        <div class="submit-page">
-                            <!-- Information -->
-                            <div class="frm_submit_block">
-                                <h3 class="text-center">Information Bancaire</h3><br>
-                                <form action="/modifier-rib" method="post">
-                                    @csrf
-                                    @method('POST')
-                                    <div class="frm_submit_wrap">
-                                        <div class="form-row">
-
-                                            <div class="form-group col-lg-6 col-sm-12">
-                                                <label>RIB Utilisé</label>
-                                                <div class="input-group mb-2">
-                                                  <span class="input-group-addon" style="border:1px solid #DDE6ED;font-weight:bold;">
-                                                    <i class="ti-credit-card fa-lg" style="color:black;"></i>
-                                                  </span>
-                                                  <input type="text" id="rib" name="rib"  class="form-control"
-                                                  value="{{ $marchand->rib }}">
-                                              </div>
-
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-lg-12 col-md-12">
-
-
-
-                                        <button type="submit" class="btn btn-danger ml-2 text-white"><i class="ti-save  fa-lg" style="color:white; margin-right:20px"></i>Modifier</button>
-                                    </div>
-                                </form>
-                            </div>
+                        <!-- Information -->
+                        <div class="card" style="color: #fff;background:#144273">
+                            <h4 class="text-center text-white text-uppercase mt-2">Information Bancaire</h4>
                         </div>
+                        <form action="/modifier-rib" method="post">
+                            @csrf
+                            @method('POST')
+                            <div class="form-row d-flex align-items-center"> <!-- Flexbox ajouté ici -->
+                        
+                                <!-- Champ de formulaire -->
+                                <div class="form-group col-lg-12">
+                                    <label>RIB Utilisé</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" style="border:1px solid #DDE6ED;font-weight:bold;">
+                                            <i class="ti-credit-card fa-lg" style="color:black;"></i>
+                                        </span>
+                                        <input type="text" id="rib" name="rib" class="form-control" value="{{ $marchand->rib }}">
+                                    </div>
+                                </div>
+                        
+                                <!-- Bouton Modifier -->
+                                <div class="form-group col-lg-2 d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-danger text-white">
+                                        <i class="ti-save fa-lg" style="color:white; margin-right:10px;"></i>
+                                        Modifier
+                                    </button>
+                                </div>
+                        
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -50,10 +46,12 @@
                 <div class="row">
                     <!-- Submit Form -->
                     <div class="col-lg-12 col-md-12">
+                        <div class="card" style="color: #fff;background:#144273">
+                            <h4 class="text-center text-white text-uppercase mt-2">Demande de retrait</h4>
+                        </div>
                         <div class="submit-page">
                             <!-- Information -->
                             <div class="frm_submit_block">
-                                <h3 class="text-center">Demande de retrait</h3><br>
                                 <form action="/save-retrait" method="POST">
                                     @csrf
                                     @method('POST')
@@ -62,9 +60,14 @@
                                         <div class="form-row">
 
                                             <div class="form-group col-lg-6 col-sm-12">
-                                                <label>Nom & Prénoms </label>
-                                                <input type="text" class="form-control" value="{{ $marchand->nom }}"
-                                                    readonly>
+                                                <label>Marchand </label>
+                                                <div class="input-group mb-2">
+                                                    <span class="input-group-addon" style="border:1px solid #DDE6ED;font-weight:bold;">
+                                                        <i class="ti-user fa-lg" style="color:black;"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control"
+                                                    value="{{ $marchand->nom }}" readonly>
+                                                </div>
                                             </div>
 
 
@@ -95,7 +98,7 @@
                             <div class="form-group col-lg-12 col-md-12">
 
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                                  <i class="ti-money  fa-lg" style="color:white; margin-right:20px"></i> Lancer Retrait
+                                  <i class="ti-money  fa-lg" style="color:white; margin-right:5px"></i> Lancer Retrait
                                 </button>
                             </div>
 
@@ -156,12 +159,8 @@
                                   <tr>
                                       <th scope="col">Initié par</th>
                                       <th scope="col">Montant à retiré</th>
-                                      {{-- <th scope="col">Montant perçu</th>
-                                      <th scope="col">Frais</th> --}}
-                                      <!-- <th scope="col">Montant restant</th> -->
                                       <th scope="col">Date de la demande</th>
                                       <th scope="col">Status de la demande</th>
-                                      {{-- <th scope="col">Mode de paiement</th> --}}
                                       @if(auth()->user()->role == "superAdmin")
                                        <th scope="col">Actions</th>
                                       @endif
