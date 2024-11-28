@@ -20,15 +20,24 @@
 
                                             <div class="form-group col-lg-6 col-sm-12">
                                                 <label>RIB Utilisé</label>
-                                                <input type="text" id="rib" name="rib" class="form-control"
-                                                    value="{{ $marchand->rib }}">
+                                                <div class="input-group mb-2">
+                                                  <span class="input-group-addon" style="border:1px solid #DDE6ED;font-weight:bold;">
+                                                    <i class="ti-credit-card fa-lg" style="color:black;"></i>
+                                                  </span>
+                                                  <input type="text" id="rib" name="rib"  class="form-control"
+                                                  value="{{ $marchand->rib }}">
+                                              </div>
+
                                             </div>
 
 
                                         </div>
                                     </div>
                                     <div class="form-group col-lg-12 col-md-12">
-                                        <button type="submit" class="btn btn-danger ml-2 text-white">Modifier</button>
+
+
+
+                                        <button type="submit" class="btn btn-danger ml-2 text-white"><i class="ti-save  fa-lg" style="color:white; margin-right:20px"></i>Modifier</button>
                                     </div>
                                 </form>
                             </div>
@@ -63,7 +72,9 @@
                                                 <label>Contact</label>
 
                                                     <div class="input-group mb-2">
-                                                      <span class="input-group-addon" style="border:1px solid #DDE6ED;font-weight:bold;">Numéro</span>
+                                                      <span class="input-group-addon" style="border:1px solid #DDE6ED;font-weight:bold;">
+                                                        <i class="ti-mobile fa-lg" style="color:black;"></i>
+                                                      </span>
                                                       <input type="number" name="contact" class="form-control"
                                                       value="{{ $marchand ->contact }}" readonly>
                                                   </div>
@@ -84,7 +95,7 @@
                             <div class="form-group col-lg-12 col-md-12">
 
                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                                  Lancer Retrait
+                                  <i class="ti-money  fa-lg" style="color:white; margin-right:20px"></i> Lancer Retrait
                                 </button>
                             </div>
 
