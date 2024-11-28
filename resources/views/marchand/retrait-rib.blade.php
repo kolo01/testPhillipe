@@ -112,20 +112,27 @@
                                   </div>
                                   <div class="modal-body">
                                     <center class="mt-2 mb-4"><Img src=" {{ asset('assets/img/image/logo/logo.png') }}" width="50px" height="50px" alt="logo Babimo"/></center>
-                                   <div class="d-flex p-2 justify-content-around ">
-                                    <p><strong>Initiateur :</strong> {{ auth()->user()->username }}</p>
-                                    <p><strong>Marchand :</strong> {{ $marchand->nom  }}</p>
-
+                                   <div class="d-flex p-2 justify-content-between ">
+                                    <p><strong>Initiateur :</strong></p>
+                                    <p style="line-break: auto; word-wrap: break-word; width:200px "> {{ auth()->user()->username }}</p>
                                    </div>
-                                    <div class="d-flex p-2 justify-content-around ">
-                                      <p><strong>RIB Utilisé :</strong> {{ $marchand->rib }}</p>
-                                      <p><strong>Montant :</strong> <span id="displayAmount"></span></p>
+                                   <div class="d-flex p-2 justify-content-between ">
+                                    <p><strong>Marchand :</strong> </p>
+                                    <p style="line-break: auto; word-wrap: break-word; width:200px ">{{ $marchand->nom  }}</p>
+                                   </div>
+                                    <div class="d-flex p-2 justify-content-between ">
+                                      <p class="w-70"><strong>RIB Utilisé: </strong> </p>
+                                      <p style="line-break: auto; word-wrap: break-word; width:200px ">{{ $marchand->rib }}</p>
                                     </div>
+                                    <div class="d-flex p-2 justify-content-between ">
 
+                                      <p><strong>Montant :</strong> </p>
+                                      <p style="line-break: auto; word-wrap: break-word; width:200px "><span id="displayAmount"></span></p>
+                                    </div>
                                   </div>
                                   <div class="modal-footer space-between">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                                    <button type="submit" class="btn btn-danger ml-2 text-white">Confirmer retrait</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ti-close fa-lg" style="color:black; margin-right:20px"></i>Annuler</button>
+                                    <button type="submit" class="btn btn-danger ml-2 text-white"><i class="ti-check fa-lg" style="color:white; margin-right:20px"></i>Confirmer retrait</button>
                                   </div>
                                 </div>
                               </div>
