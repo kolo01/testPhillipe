@@ -16,7 +16,7 @@
                             @csrf
                             @method('POST')
                             <div class="form-row d-flex align-items-center"> <!-- Flexbox ajouté ici -->
-                        
+
                                 <!-- Champ de formulaire -->
                                 <div class="form-group col-lg-12">
                                     <label>RIB Utilisé</label>
@@ -27,7 +27,7 @@
                                         <input type="text" id="rib" name="rib" class="form-control" value="{{ $marchand->rib }}">
                                     </div>
                                 </div>
-                        
+
                                 <!-- Bouton Modifier -->
                                 <div class="form-group col-lg-2 d-flex justify-content-end">
                                     <button type="submit" class="btn btn-danger text-white">
@@ -35,7 +35,7 @@
                                         Modifier
                                     </button>
                                 </div>
-                        
+
                             </div>
                         </form>
                     </div>
@@ -134,8 +134,8 @@
                                     </div>
                                   </div>
                                   <div class="modal-footer space-between">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ti-close fa-lg" style="color:black; margin-right:20px"></i>Annuler</button>
-                                    <button type="submit" class="btn btn-danger ml-2 text-white"><i class="ti-check fa-lg" style="color:white; margin-right:20px"></i>Confirmer retrait</button>
+                                    <button type="button" onclick="alert('Transaction Annulée')" class="btn btn-secondary" data-dismiss="modal"><i class="ti-close fa-lg" style="color:black; margin-right:20px"></i>Annuler</button>
+                                    <button type="submit"  onclick="alert('Votre demande de retrait est en cours de validation!')" class="btn btn-danger ml-2 text-white"><i class="ti-check fa-lg" style="color:white; margin-right:20px"></i>Confirmer retrait</button>
                                   </div>
                                 </div>
                               </div>
@@ -225,6 +225,9 @@
               document.getElementById('displayAmount').textContent = this.value;
           });
 
+          Submitted(){
+            alert("hello!");
+          }
 
       </script>
     @endsection
