@@ -99,6 +99,10 @@ Route::middleware('auth','web')->group(function () {
     Route::post('/save-retrait', [CompteController::class, 'saveRetrait'])->name('marchand.ribRetraitSave');
     Route::get('/confirm-retrait-rib/{id}', [CompteController::class, 'acceptPaiement'])->name('transfert.rib');
     Route::get('/cancel-retrait-rib/{id}', [CompteController::class, 'cancelPaiement'])->name('transfert.ribcancel');
+    Route::get('/afficher-un-marchand/{id}', [MarchandController::class, 'show'])->name('marchand.details');
+    Route::get('generate-recap_marchand/{id}', [MarchandController::class, 'generatePDF'])->name('commercial.pdf');
+    Route::get('commercial-stats', [MarchandController::class, 'statistics'])->name('commercial.statistic');
+
 
 });
 

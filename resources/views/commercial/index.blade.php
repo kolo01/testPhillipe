@@ -40,8 +40,12 @@
                             <thead class="thead-dark">
                                 <tr>
                                   <th scope="col">Marchand</th>
+                                  <th scope="col">Activite</th>
+                                  <th scope="col">Contact</th>
+                                  <th scope="col">Solde</th>
+
                                   <th scope="col">Status</th>
-                                  {{-- <th scope="col">Action</th> --}}
+                                  <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,32 +68,56 @@
                                                 </div>
                                                 <div class="dash_prt_caption">
                                                     <h5>{{ $marchand->nom}}</h5>
-                                                    <div class="prt_dash_rate"><span>Activité: </span>{{ $marchand->infobusiness}}</div>
-                                                    <div class="prt_dash_rate"><span>Contact: </span>{{ $marchand->contact}}</div>
                                                 </div>
-                                                <div class="dash_prt_caption">
-                                                    <div class="prt_dash_rate"><span>Solde: </span>@if($marchand->solde){{number_format($marchand->solde, 0, ' ', ' ')}} @else {{$marchand->solde}} @endif xof</div>
-                                                </div>
+
                                             </div>
                                         </td>
+
+                                        <td>
+                                          <div class="dash_prt_wrap">
+
+                                                  <div class="prt_dash_rate" style="width:200px;">{{ $marchand->infobusiness}}</div>
+
+                                          </div>
+                                      </td>
+
+                                      <td>
+                                        <div class="dash_prt_wrap">
+
+                                                <div class="prt_dash_rate">{{ $marchand->contact}}</div>
+
+                                        </div>
+                                    </td>
+                                    <td>
+                                      <div class="dash_prt_wrap">
+
+                                          <div class="dash_prt_caption">
+                                              <div class="prt_dash_rate">@if($marchand->solde){{number_format($marchand->solde, 0, ' ', ' ')}} @else {{$marchand->solde}} @endif xof</div>
+                                          </div>
+                                      </div>
+                                  </td>
+
+
                                         <td>
                                             @if($marchand->service_status == 1)
                                                <div class="_leads_status"><span class="active" style="background:red;color:#fff;">En test</span></div>
                                             @else
                                                <div class="_leads_status"><span class="active" style="background:green;color:#fff;">En prod</span></div>
                                             @endif
-                                        </td>
-                                        {{-- <td>
-                                            <div class="_leads_action">
-                                            <a href="{{ route('marchand.supprimer', ['sup' => $marchand->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer le marchand {{$marchand->nom}} ?');"><i class="fas fa-trash"></i></a>
-                                            <a href="{{ route('marchand.modifier', ['id' => $marchand->id]) }}" class="sendformId"><i class="fas fa-edit"></i></a>
-                                            @if($marchand->service_status == 1)
-                                            <a href="{{ route('marchand.active', ['active' => $marchand->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir activé le marchand {{$marchand->nom}} ?');"><i class="fas fa-lock"></i></a>
-                                            @else
-                                            <a href="{{ route('marchand.active', ['active' => $marchand->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir desactivé le marchand {{$marchand->nom}} ?');"><i class="fas fa-unlock"></i></a>
-                                            @endif
-                                            </div>
-                                        </td> --}}
+                                          </td>
+                                          <td>
+                                        {{--
+                                        <a href="{{ route('marchand.supprimer', ['sup' => $marchand->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer le marchand {{$marchand->nom}} ?');"><i class="fas fa-trash"></i></a>
+                                        @if($marchand->service_status == 1)
+                                        <a href="{{ route('marchand.active', ['active' => $marchand->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir activé le marchand {{$marchand->nom}} ?');"><i class="fas fa-lock"></i></a>
+                                        @else
+                                        <a href="{{ route('marchand.active', ['active' => $marchand->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir desactivé le marchand {{$marchand->nom}} ?');"><i class="fas fa-unlock"></i></a>
+                                        @endif
+                                        --}}
+                                        <div class="_leads_action">
+                                          <a href="{{ route('marchand.details', ['id' => $marchand->id]) }}" class="sendformId"><i class="fas fa-eye"></i></a>
+                                        </div>
+                                          </td>
                                     </tr>
                                 @endforeach
 

@@ -14,7 +14,9 @@ use App\Mail\SendMailInfoSuccesRetrait;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Transaction;
 use App\Models\Depot;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
+
 
 
 class MarchandController extends Controller
@@ -34,7 +36,7 @@ class MarchandController extends Controller
         $total = $marchands->count();
 
         $result = $marchands->map(function ($item){
-          
+
                 $item->solde = $this->soldeByCompte($item->id);
 
                 return $item;
@@ -64,7 +66,7 @@ class MarchandController extends Controller
     public function store(Request $request)
     {
 
-      
+
         try {
             $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789jhefbiueqjbfwqiubfhiuyf47832urb32yfbe2fy2beufjb23yfb23iufkb2';
             $reference_client = '';
@@ -99,7 +101,7 @@ class MarchandController extends Controller
 
                 // Déplacer le fichier vers le répertoire de destination
                 $getlogo->move(public_path('uploads'), $logo);
-               
+
                 $marchand = new Marchand();
                 $marchand->nom = $request->input('nom');
                 $marchand->registrecommerce = $request->input('registrecommerce');
@@ -142,6 +144,9 @@ class MarchandController extends Controller
     public function show($id)
     {
         //
+        $marchand = DB::table('marchands')->where('id', $id)->first();
+
+        return view('commercial.afficher-marchand', compact('marchand'));
     }
 
     /**
@@ -874,4 +879,26 @@ public function Retrait($data){
 
 }
 #-------------------------------------FIN RETRAIT-------------------------------------
+
+
+
+public function generatePDF($id){
+
+   $marchand = DB::table('marchands')->where('id', $id)->first();
+
+   $data = [
+    'title' => 'Fiche Récapitulative de ' . $marchand->nom,
+    'date' => date('m/d/Y'),
+    'marchand' => $marchand
+];
+
+
+   $pdf = Pdf::loadView('commercial.impressionPdf', $data);
+   return $pdf->download($marchand->nom.'.pdf');
+}
+
+public function statistics(){
+
+}
+
 }

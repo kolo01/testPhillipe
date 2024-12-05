@@ -75,8 +75,13 @@
                                         <li
                                             class="{{ Route::currentRouteName() == 'commercial.dashboard' ? 'active' : '' }}">
                                             <a class="nav_text" href="{{ route('commercial.dashboard') }}"><i
-                                                    class="fa fa-home fa-lg" style="color: #2471A3;"></i>Dashboard</a>
+                                                    class="fa fa-home fa-lg" style="color: #2471A3;"></i>Tableau de bord</a>
                                         </li>
+                                        <li
+                                        class="{{ Route::currentRouteName() == 'commercial.statistic'  ? 'active' : '' }}">
+                                        <a class="nav_text" href="{{ route('commercial.statistic') }}"><i
+                                                class="fa fa-cubes fa-lg" style="color:#bf0559;"></i>Statistiques</a>
+                                    </li>
                                     @else
 
 

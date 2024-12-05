@@ -1,5 +1,5 @@
 @extends('layout')
-@section('content') 
+@section('content')
     <div class="col-lg-9 col-md-8 col-sm-12">
         <div class="dashboard-body">
             <div class="clearfix mb-3"></div>
@@ -19,10 +19,10 @@
                             <div class="form-group col-md-3 align-self-end">
                                 <button type="submit" class="btn btn-primary btn-block">Rechercher</button>
                             </div>
-                        </div> 
+                        </div>
                     </form>
                 </div>
-            </div> 
+            </div>
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12">
                     <div class="dashboard_property">
@@ -34,12 +34,12 @@
                                         $hour = date('H');
                                         $greeting = ($hour < 12) ? 'Bonjour' : 'Bonsoir';
                                     @endphp
-                                    <strong>{{$greeting}} M/Mme {{auth()->user()->username}}</strong>, par défaut ces transactions suivantes sont celles du journée.
+                                    <strong>{{$greeting}} M/Mme {{auth()->user()->username}}</strong>, par défaut les transactions suivantes sont celles du jour.
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                       <span aria-hidden="true">&times;</span>
                                     </button>
-                                  </div>  
-                                @endif                                
+                                  </div>
+                                @endif
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
                                         <div class="p-3 border bg-light">
@@ -50,7 +50,16 @@
                                             </p>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 mb-3">
+                                    <!-- <div class="col-md-6 mb-3">
+                                        <div class="p-3 border bg-light">
+                                            Solde
+                                            <hr>
+                                            <p class="text-center" style="color:#3498DB;font-weight:bold;">
+                                               @if($solde){{number_format($solde, 0, ' ', ' ')}} @else {{$solde}} @endif
+                                            </p>
+                                        </div>
+                                    </div> -->
+                                     <div class="col-md-3 mb-3">
                                         <div class="p-3 border bg-light">
                                             Montant reçu
                                             <hr>
@@ -71,21 +80,22 @@
 
                                     <div class="col-md-3 mb-3">
                                         <div class="p-3 border bg-light">
-                                            Montant des Frais
+                                            Frais
                                             <hr>
                                             <p class="text-center" style="color:#3498DB;font-weight:bold;">
-                                                @if($sum_frais){{number_format($sum_frais, 0, ' ', ' ')}} @else {{$sum_frais}} @endif
+                                                @if($feesAmount){{number_format($feesAmount, 0, ' ', ' ')}} @else {{$feesAmount}} @endif
                                             </p>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- row -->       
+            <!-- row -->
         </div>
-            
+
     </div>
 @endsection
