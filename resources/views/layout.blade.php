@@ -72,10 +72,14 @@
                                 <ul class="nav_text">
                                     {{-- @dd(auth()->user()->role) --}}
                                     @if (auth()->user()->role == 'commercial')
+                                    <li class="{{ Route::currentRouteName() == 'dashboard.index' ? 'active' : '' }}">
+                                        <a class="nav_text" href="{{ route('dashboard.index') }}"><i
+                                                class="fa fa-home fa-lg" style="color:#203dcf;"></i>Tableau de bord</a>
+                                    </li>
                                         <li
                                             class="{{ Route::currentRouteName() == 'commercial.dashboard' ? 'active' : '' }}">
                                             <a class="nav_text" href="{{ route('commercial.dashboard') }}"><i
-                                                    class="fa fa-home fa-lg" style="color: #2471A3;"></i>Tableau de bord</a>
+                                                    class="fa fa-home fa-lg" style="color: #2471A3;"></i>Mes marchands</a>
                                         </li>
                                         <li
                                         class="{{ Route::currentRouteName() == 'commercial.statistic'  ? 'active' : '' }}">

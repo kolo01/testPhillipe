@@ -41,15 +41,31 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group col-lg-12 col-md-12">
-                                <a href="{{ url('/') }}" class="btn btn-danger ml-2 text-white">Retour</a>
-                            </div>
+
+                          <form action="/updateImage" method="post" enctype="multipart/form-data">
+                            @csrf
+                            @method('POST')
+                              <div class="frm_submit_wrap">
+                                  <div class="form-row">
+
+                                      <div class="form-group col-lg-6 col-sm-12">
+                                        <label>Photo De Profils </label>
+                                        <input type="file" class="form-control" accept="images/*"  name="photoProfils">
+                                      </div>
+
+
+                                  </div>
+                              </div>
+                              <div class="form-group col-lg-12 col-md-12">
+                                  <button type="submit"  class="btn btn-danger ml-2 text-white"><i class="ti-import mr-2"></i>Changer la photo</button>
+                              </div>
+                          </form>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- row -->
-            <div class="dashboard-wraper mt-5">
+            <div class="dashboard-wraper mt-5 mb-10">
                 <div class="row">
                     <!-- Submit Form -->
                     <div class="col-lg-12 col-md-12">

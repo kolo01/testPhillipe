@@ -897,8 +897,6 @@ public function generatePDF($id){
    return $pdf->download($marchand->nom.'.pdf');
 }
 
-public function statistics(){
 
-}
 
 }

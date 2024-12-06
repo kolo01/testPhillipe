@@ -83,6 +83,7 @@ Route::middleware('auth','web')->group(function () {
     Route::get('solde-marchand-transaction',[MarchandController::class, 'ManageTransactionMarchand'])->name('view.transaction.manager')->middleware('checktest')->middleware(CheckIsAdmin::class);
 
     Route::get('/mon-compte', [CompteController::class, 'profil'])->name('profil.info');
+    Route::post('/updateImage', [CompteController::class, 'UpdateProfilsPic'])->name('profil.update');
     Route::get('/sms', [CompteController::class, 'sms'])->name('get.sms');
     Route::get('/liste-des-operateurs', [OperateurController::class, 'operateur'])->name('liste.operateur')->middleware(CheckIsAdmin::class);
     Route::get('/suvi-des-transactions', [TransactionController::class, 'transactions'])->name('liste.transactions')->middleware(CheckIsAdmin::class);
@@ -104,7 +105,7 @@ Route::middleware('auth','web')->group(function () {
     Route::get('/cancel-retrait-rib/{id}', [CompteController::class, 'cancelPaiement'])->name('transfert.ribcancel')->middleware(CheckIsSuperAdmin::class);
     Route::get('/afficher-un-marchand/{id}', [MarchandController::class, 'show'])->name('marchand.details')->middleware(CheckIsCommercial::class);
     Route::get('generate-recap_marchand/{id}', [MarchandController::class, 'generatePDF'])->name('commercial.pdf')->middleware(CheckIsCommercial::class);
-    Route::get('commercial-stats', [MarchandController::class, 'statistics'])->name('commercial.statistic')->middleware(CheckIsCommercial::class);
+    Route::get('commercial-stats', [TransactionController::class, 'statistiqueForCommercial'])->name('commercial.statistic')->middleware(CheckIsCommercial::class);
 
 
 });

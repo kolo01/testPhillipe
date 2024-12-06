@@ -2,10 +2,8 @@
 @section('content')
     <div class="col-lg-9 col-md-8 col-sm-12">
         <div class="dashboard-body">
-
-        </div>
             <div class="clearfix mb-3"></div>
-            {{-- <div class="row">
+            <div class="row">
                 <div class="col-lg-12 col-md-12">
                     <form action="{{route('liste.statistiqueSearch')}}" method="post">
                         @csrf
@@ -24,15 +22,12 @@
                         </div>
                     </form>
                 </div>
-            </div> --}}
+            </div>
             <div class="row">
-
                 <div class="col-lg-12 col-md-12 col-sm-12">
                     <div class="dashboard_property">
-
                         <div class="card">
                             <div class="card-body">
-
                                 @if (Route::currentRouteName() == 'liste.statistique')
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     @php
@@ -46,7 +41,6 @@
                                   </div>
                                 @endif
                                 <div class="row">
-
                                     <div class="col-md-3 mb-3">
                                         <div class="p-3 border bg-light">
                                             Nombre de transaction
