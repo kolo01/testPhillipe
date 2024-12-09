@@ -207,6 +207,8 @@ class TransactionController extends Controller
 
   public function statistique()
   {
+    $marchandFounded= null;
+    $allMarchand = DB::table("marchands")->get();
     $periodeDebut = date('Y-m-d');
     $periodeFin = date('Y-m-d');
     $marchand = Marchand::find(auth()->user()->marchand_id);
@@ -240,14 +242,17 @@ class TransactionController extends Controller
       $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->where('marchand_id', auth()->user()->marchand_id)->sum('montantfrais');
     }
     //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
-    return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount'));
+    return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', "allMarchand",'marchandFounded'));
   }
 
 
   public function statistiqueSearch(Request $request)
   {
+    $allMarchand = DB::table("marchands")->get();
     $periodeDebut = request()->input('periode_debut');
     $periodeFin = request()->input('periode_fin');
+    $marchandToFind = request()->input('marchand_selected');
+    $marchandFounded = Marchand::find($marchandToFind);
     $marchand = Marchand::find(auth()->user()->marchand_id);
     $nom_marchand = $marchand->nom;
     $marchand_id = $marchand->id;
@@ -256,73 +261,163 @@ class TransactionController extends Controller
       return back();
     }
     if ((request()->input('periode_debut') == null && request()->input('periode_fin') == null) || (request()->input('periode_debut') > request()->input('periode_fin'))) {
-      return redirect()->route('liste.statistique');
+      if (request()->input('marchand_selected') == null) {
+        return redirect()->route('liste.statistique');
+      } else {
+
+        $nb_t = DB::table('transactions')->where('marchand_id', $marchandToFind)->where('statut', 'SUCCESS')->get()->count();
+        $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->where('type', 'depot')->sum('transacmontant');
+
+        $sum_paye = $this->calculFrais($sum_t, $marchandFounded->tranche_transac, "depot");
+
+        $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->where('type', 'retrait')->sum('transacmontant');
+        $sum_retire = $this->calculFrais($sum_r, $marchandFounded->tranche_retrait, "retrait");
+        $solde = $sum_paye - $sum_retire;
+        $solde = "";
+
+        $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->sum('montantfrais');
+        $periodeDebut = "";
+        $periodeFin = "";
+        return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand','marchandFounded'));
+      }
     }
-    if (auth()->user()->role == 'superAdmin') {
 
-      $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
-        return $query->whereDate('created_at', '>=', $periodeDebut);
-      })
-        ->when($periodeFin, function ($query) use ($periodeFin) {
-          return $query->whereDate('created_at', '<=', $periodeFin);
-        })->get()->count();
+    if (request()->input('marchand_selected') == null) {
+      if (auth()->user()->role == 'superAdmin') {
 
-      $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
-        return $query->whereDate('created_at', '>=', $periodeDebut);
-      })
-        ->when($periodeFin, function ($query) use ($periodeFin) {
-          return $query->whereDate('created_at', '<=', $periodeFin);
-        })->where('type', 'depot')->sum('transacmontant');
-
-      $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
-
-      $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
-        return $query->whereDate('created_at', '>=', $periodeDebut);
-      })
-        ->when($periodeFin, function ($query) use ($periodeFin) {
-          return $query->whereDate('created_at', '<=', $periodeFin);
-        })->where('type', 'retrait')->sum('transacmontant');
-      $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
-      $solde = $sum_paye - $sum_retire;
-      $solde = "";
-
-      $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
-        return $query->whereDate('created_at', '>=', $periodeDebut);
-      })
-        ->when($periodeFin, function ($query) use ($periodeFin) {
-          return $query->whereDate('created_at', '<=', $periodeFin);
-        })->sum('montantfrais');
-    } else {
-
-      $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
-        return $query->whereDate('created_at', '>=', $periodeDebut);
-      })
-        ->when($periodeFin, function ($query) use ($periodeFin) {
-          return $query->whereDate('created_at', '<=', $periodeFin);
-        })->where('marchand_id', auth()->user()->marchand_id)->get()->count();
-
-      $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
-        return $query->whereDate('created_at', '>=', $periodeDebut);
-      })
-        ->when($periodeFin, function ($query) use ($periodeFin) {
-          return $query->whereDate('created_at', '<=', $periodeFin);
-        })->where('marchand_id', auth()->user()->marchand_id)->where('type', 'depot')->sum('transacmontant');
-
-      $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
-      $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', auth()->user()->marchand_id)->where('type', 'retrait')->sum('transacmontant');
-      $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
-      $solde = "";
-
-      $feesAmount = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id)->where('statut', 'SUCCESS')
-        ->when($periodeDebut, function ($query) use ($periodeDebut) {
+        $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
           return $query->whereDate('created_at', '>=', $periodeDebut);
         })
-        ->when($periodeFin, function ($query) use ($periodeFin) {
-          return $query->whereDate('created_at', '<=', $periodeFin);
-        })->sum('montantfrais');
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->get()->count();
+
+        $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('type', 'depot')->sum('transacmontant');
+
+        $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
+
+        $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('type', 'retrait')->sum('transacmontant');
+        $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
+        $solde = $sum_paye - $sum_retire;
+        $solde = "";
+
+        $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->sum('montantfrais');
+      } else {
+
+        $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('marchand_id', auth()->user()->marchand_id)->get()->count();
+
+        $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('marchand_id', auth()->user()->marchand_id)->where('type', 'depot')->sum('transacmontant');
+
+        $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
+        $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', auth()->user()->marchand_id)->where('type', 'retrait')->sum('transacmontant');
+        $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
+        $solde = "";
+
+        $feesAmount = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id)->where('statut', 'SUCCESS')
+          ->when($periodeDebut, function ($query) use ($periodeDebut) {
+            return $query->whereDate('created_at', '>=', $periodeDebut);
+          })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->sum('montantfrais');
+      }
+      //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
+      return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand','marchandFounded'));
     }
-    //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
-    return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount'));
+    else{
+      if (auth()->user()->role == 'superAdmin') {
+
+        $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->get()->count();
+
+        $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('type', 'depot')->sum('transacmontant');
+
+        $sum_paye = $this->calculFrais($sum_t, $marchandFounded->tranche_transac, "depot");
+
+        $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('type', 'retrait')->sum('transacmontant');
+        $sum_retire = $this->calculFrais($sum_r, $marchandFounded->tranche_retrait, "retrait");
+        $solde = $sum_paye - $sum_retire;
+        $solde = "";
+
+        $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->sum('montantfrais');
+      } else {
+
+        $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('marchand_id', auth()->user()->marchand_id)->get()->count();
+
+        $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('marchand_id', auth()->user()->marchand_id)->where('type', 'depot')->sum('transacmontant');
+
+        $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
+        $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', auth()->user()->marchand_id)->where('type', 'retrait')->sum('transacmontant');
+        $sum_retire = $this->calculFrais($sum_r, $marchand->tranche_retrait, "retrait");
+        $solde = "";
+
+        $feesAmount = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id)->where('statut', 'SUCCESS')
+          ->when($periodeDebut, function ($query) use ($periodeDebut) {
+            return $query->whereDate('created_at', '>=', $periodeDebut);
+          })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->sum('montantfrais');
+      }
+      //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
+      return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand','marchandFounded'));
+    }
+
+
   }
 
 
@@ -354,25 +449,25 @@ class TransactionController extends Controller
 
   public function statistiqueForCommercial()
   {
-    $nb_t= 0;
-    $sum_t= 0;
+    $nb_t = 0;
+    $sum_t = 0;
     $sum_paye = 0;
     $sum_r = 0;
     $sum_retire = 0;
     $nb_total = DB::table('marchands')->where('commercial_id', auth()->user()->id)->get();
     // dd($nb_t);
     foreach ($nb_total as $key => $value) {
-    //  dd($value->tranche_retrait);
-     $nb_t = DB::table('succeed_daily_transactions')->where('marchand_id', $value->id)->get()->count() +$nb_t;
-    $sum_t = DB::table('succeed_daily_transactions')->where('marchand_id', $value->id)->where('type', 'depot')->sum('transacmontant')+ $sum_t;
-    $sum_paye = $this->calculFrais($sum_t, $value->tranche_transac, "depot")+$sum_paye;
-    $sum_r = DB::table('succeed_daily_transactions')->where('marchand_id', $value->id)->where('type', 'retrait')->sum('transacmontant')+ $sum_r;
-    $sum_retire = $this->calculFrais($sum_r, $value->tranche_retrait, "retrait")+$sum_retire;
-    $solde = $sum_paye - $sum_retire;
-    $f_p = $this->getMtFees($sum_t, $value->tranche_transac);
-    $f_r = $this->getMtFees($sum_r, $value->tranche_retrait);
-    //$feesAmount = $f_p + $f_r;
-    $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->where('marchand_id', $value->id)->sum('montantfrais');
+      //  dd($value->tranche_retrait);
+      $nb_t = DB::table('succeed_daily_transactions')->where('marchand_id', $value->id)->get()->count() + $nb_t;
+      $sum_t = DB::table('succeed_daily_transactions')->where('marchand_id', $value->id)->where('type', 'depot')->sum('transacmontant') + $sum_t;
+      $sum_paye = $this->calculFrais($sum_t, $value->tranche_transac, "depot") + $sum_paye;
+      $sum_r = DB::table('succeed_daily_transactions')->where('marchand_id', $value->id)->where('type', 'retrait')->sum('transacmontant') + $sum_r;
+      $sum_retire = $this->calculFrais($sum_r, $value->tranche_retrait, "retrait") + $sum_retire;
+      $solde = $sum_paye - $sum_retire;
+      $f_p = $this->getMtFees($sum_t, $value->tranche_transac);
+      $f_r = $this->getMtFees($sum_r, $value->tranche_retrait);
+      //$feesAmount = $f_p + $f_r;
+      $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->where('marchand_id', $value->id)->sum('montantfrais');
     }
 
     return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'feesAmount'));

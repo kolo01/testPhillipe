@@ -12,12 +12,22 @@
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label for="periode_debut">Date début</label>
-                                <input type="date" class="form-control" value="{{ date('Y-m-d', strtotime($periodeDebut)) ?? ''}}" id="periode_debut" name="periode_debut">
+                                <input type="date" class="form-control" value="{{$periodeDebut ? date('Y-m-d', strtotime($periodeDebut)) ?? '' : ""}}" id="periode_debut" name="periode_debut">
                             </div>
                             <div class="form-group col-md-3">
                                 <label for="periode_fin">Date fin</label>
-                                <input type="date" class="form-control" id="periode_fin" value="{{ date('Y-m-d', strtotime($periodeFin)) ?? ''}}" name="periode_fin">
+                                <input type="date" class="form-control" id="periode_fin" value="{{$periodeFin ? date('Y-m-d', strtotime($periodeFin)) ?? '' : ""}}" name="periode_fin">
                             </div>
+                            <div class="form-group col-md-3">
+                              <label for="periode_fin">Marchand</label>
+                              <select  class="form-control"   id="marchand_selected"  name="marchand_selected">
+                                <option value=""></option>
+                                @foreach ($allMarchand as $marchand )
+                                <option value="{{$marchand->id}}">{{$marchand->nom}}</option>
+                                @endforeach
+
+                              </select>
+                          </div>
                             <div class="form-group col-md-3 align-self-end">
                                 <button type="submit" class="btn btn-primary btn-block">Rechercher</button>
                             </div>
@@ -32,6 +42,17 @@
 
                         <div class="card">
                             <div class="card-body">
+
+                                @if ($marchandFounded != null)
+                                <div class="alert alert-primary alert-dismissible fade show" role="alert">
+
+                                  Historique du marchand <strong> {{$marchandFounded->nom}}</strong>.
+                                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                @endif
+
 
                                 @if (Route::currentRouteName() == 'liste.statistique')
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
