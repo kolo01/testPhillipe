@@ -88,7 +88,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-lg-12 col-md-12">
-                                        <button type="submit"  class="btn btn-danger ml-2 text-white">Modifier</button>
+                                        <button type="submit"  class="btn btn-danger ml-2 text-white"> <i class="ti-edit   mr-2"></i>Modifier</button>
                                     </div>
                                 </form>
                             </div>
