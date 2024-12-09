@@ -5,7 +5,7 @@
 
         </div>
             <div class="clearfix mb-3"></div>
-            {{-- <div class="row">
+            <div class="row">
                 <div class="col-lg-12 col-md-12">
                     <form action="{{route('liste.statistiqueSearch')}}" method="post">
                         @csrf
@@ -24,7 +24,7 @@
                         </div>
                     </form>
                 </div>
-            </div> --}}
+            </div>
             <div class="row">
 
                 <div class="col-lg-12 col-md-12 col-sm-12">
