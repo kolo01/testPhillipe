@@ -92,7 +92,8 @@ Route::middleware('auth','web')->group(function () {
     //----26/10/2023
     Route::get('/detail-transactions/{id}', [TransactionController::class, 'detailtransaction'])->name('detail.transaction')->middleware(CheckIsAdmin::class);
     Route::post('/export-excel',  [TransactionController::class, 'exportExcel'])->name('export.excel')->middleware(CheckIsAdmin::class);
-    Route::post('/search-transactions',  [TransactionController::class, 'SearchTransactions'])->name('search.transactions')->middleware(CheckIsAdmin::class);
+    Route::get('/search-transactions',  [TransactionController::class, 'SearchTransactions'])->name('search.transactions')->middleware(CheckIsAdmin::class);
+
 
 
     // commerciaux interface

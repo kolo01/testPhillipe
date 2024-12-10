@@ -40,6 +40,7 @@ class TransactionController extends Controller
     } else {
       $transactions = DB::table('view_transactions')->where('marchand_id', auth()->user()->marchand_id)->whereDate('created_at', Carbon::today());
       $all_transactions = DB::table('view_transactions')->whereDate('created_at', Carbon::today());
+      // $all_transactions = DB::table('view_transactions');
       $infotransaction = DB::table('info_transactions');
     }
 
@@ -70,14 +71,16 @@ class TransactionController extends Controller
 
     $totalTransactions = $trQuery->count();
     // Get the paginated transactions
-    $transactions_excel = $trQuery->orderby('created_at', 'desc')->paginate(3000);
+    $transactions_excel = $trQuery->orderby('created_at', 'desc')->paginate(10);
     session(['transactions' => $transactions_excel]);
-    $transactions = $trQuery->orderby('created_at', 'desc')->paginate(3000);
-    $html = view('transaction.data', compact('transactions', 'totalTransactions'))->render();
+    $transactions = $trQuery->orderby('created_at', 'desc')->paginate(10);
+    $html = view('transaction.suivi', compact('transactions', 'totalTransactions'))->render();
 
     if (request()->ajax()) {
       return response()->json($html);
     }
+    // dd($transactions);
+
 
     return view('transaction.suivi', compact('transactions', 'nom_marchand', 'marchand_id', 'totalTransactions', 'html', 'marchands'));
   }
@@ -99,6 +102,20 @@ class TransactionController extends Controller
     $nom_marchand = $marchand->nom;
     $marchand_id = $marchand->id;
     $service_status = $marchand->service_status;
+
+    $returnedTable = [
+      "_token" => request()->input("_token"),
+      "id_paie" => request()->input('id_paie'),
+      "status" => request()->input('status'),
+      "modepaiement" => request()->input('modepaiement'),
+      "type" => request()->input('type'),
+      "periode_debut" => request()->input('periode_debut'),
+      "periode_fin" => request()->input('periode_fin')
+
+    ];
+
+
+
 
     if ($service_status == 1) {
       $transactions = DB::connection('mysql2')->table('transactions')->where('marchand_id', auth()->user()->marchand_id);
@@ -135,15 +152,30 @@ class TransactionController extends Controller
         return $query->where('marchand_id', $marchand_choice);
       });
 
+    // $totalTransactions = $trQuery->count();
+
+    // $transactions_excel = $trQuery->orderby('created_at', 'desc')->get();
+    // session(['transactions' => $transactions_excel]);
+    // $transactions = $trQuery->orderby('created_at', 'desc')->get();
+    // $html = view('transaction.data', compact('transactions', 'totalTransactions'))->render();
+
+    // return response()->json($html);
+    // // return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions'));
     $totalTransactions = $trQuery->count();
-
-    $transactions_excel = $trQuery->orderby('created_at', 'desc')->get();
+    // Get the paginated transactions
+    $transactions_excel = $trQuery->orderby('created_at', 'desc')->paginate(10);
     session(['transactions' => $transactions_excel]);
-    $transactions = $trQuery->orderby('created_at', 'desc')->get();
-    $html = view('transaction.data', compact('transactions', 'totalTransactions'))->render();
+    $transactions = $trQuery->orderby('created_at', 'desc')->paginate(10);
+    $html = view('transaction.suivi', compact('transactions', 'totalTransactions'))->render();
 
-    return response()->json($html);
-    // return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions'));
+    if (request()->ajax()) {
+      return response()->json($html);
+    }
+    // dd($transactions);
+
+    $transactions->appends($returnedTable);
+
+    return view('transaction.suivi', compact('transactions', 'nom_marchand', 'marchand_id', 'totalTransactions', 'html', 'marchands'));
   }
 
 
