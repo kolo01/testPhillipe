@@ -178,6 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\MenuServiceProvider::class,
        // Spatie\Permission\PermissionServiceProvider::class,
+
     ],
 
     /*
@@ -232,7 +233,7 @@ return [
         'Helper' => App\Helpers\Helper::class,
         "PDF" => Barryvdh\DomPDF\Facade::class,
         "CheckUserAcces" => \App\Http\Middleware\CheckUserAcces::class,
-        
+
     ],
 
 ];

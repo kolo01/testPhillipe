@@ -10,7 +10,10 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Log;
 use App\Http\Traits\fondManager;
+use App\Models\User;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use IcehouseVentures\LaravelChartjs\Facades\Chartjs;
 
 class TransactionController extends Controller
 {
@@ -239,7 +242,7 @@ class TransactionController extends Controller
 
   public function statistique()
   {
-    $marchandFounded= null;
+    $marchandFounded = null;
     $allMarchand = DB::table("marchands")->get();
     $periodeDebut = date('Y-m-d');
     $periodeFin = date('Y-m-d');
@@ -247,10 +250,14 @@ class TransactionController extends Controller
     $nom_marchand = $marchand->nom;
     $marchand_id = $marchand->id;
     $service_status = $marchand->service_status;
+    $trans_pending = 0;
+    $sum_pending = 0;
     if ($service_status == 1) {
       return back();
     }
     if (auth()->user()->role == 'superAdmin') {
+      $trans_pending = DB::table("transactions")->where('statut', "INITIATED")->where("created_at", Carbon::today())->get()->count();
+      $sum_pending = Transaction::where('statut', 'INITIATED')->where("created_at", Carbon::today())->sum('transacmontant');
       $nb_t = DB::table('succeed_daily_transactions')->get()->count();
       $sum_t = DB::table('succeed_daily_transactions')->where('type', 'depot')->sum('transacmontant');
       $sum_paye = $this->calculFrais($sum_t, $marchand->tranche_transac, "depot");
@@ -271,15 +278,24 @@ class TransactionController extends Controller
       $f_p = $this->getMtFees($sum_t, $marchand->tranche_transac);
       $f_r = $this->getMtFees($sum_r, $marchand->tranche_retrait);
       //$feesAmount = $f_p + $f_r;
+      $sum_pending = Transaction::where('marchand_id', auth()->user()->marchand_id)->where('statut', 'INITIATED')->where("created_at", Carbon::today())->sum('transacmontant');
+      $trans_pending = Transaction::where('statut', "INITIATED")->where('marchand_id', auth()->user()->marchand_id)->where("created_at", Carbon::today())->get()->count();
       $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->where('marchand_id', auth()->user()->marchand_id)->sum('montantfrais');
     }
     //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
-    return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', "allMarchand",'marchandFounded'));
+    // dd($trans_pending);
+    $mapData = [1,2,3,4,5,6,7,8,9,10];
+    return view('transaction.state', compact('mapData', 'nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', "allMarchand", 'marchandFounded', 'trans_pending', 'sum_pending'));
   }
 
 
   public function statistiqueSearch(Request $request)
   {
+
+    $trans_pending = 0;
+    $sum_pending = 0;
+
+
     $allMarchand = DB::table("marchands")->get();
     $periodeDebut = request()->input('periode_debut');
     $periodeFin = request()->input('periode_fin');
@@ -296,12 +312,21 @@ class TransactionController extends Controller
       if (request()->input('marchand_selected') == null) {
         return redirect()->route('liste.statistique');
       } else {
+        if (auth()->user()->role = "superAdmin") {
+          $sum_pending = Transaction::where('statut', 'INITIATED')->where('marchand_id', $marchandToFind)->sum('transacmontant');
+          $trans_pending = Transaction::where('statut', "INITIATED")->where('marchand_id', $marchandToFind)->get()->count();
+        } else {
+          $sum_pending =  Transaction::where('marchand_id', auth()->user()->marchand_id)->where('statut', 'INITIATED')->sum('transacmontant');
+          $trans_pending = Transaction::where('statut', "INITIATED")->where('marchand_id', auth()->user()->marchand_id)->get()->count();
+        }
+
 
         $nb_t = DB::table('transactions')->where('marchand_id', $marchandToFind)->where('statut', 'SUCCESS')->get()->count();
         $sum_t = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->where('type', 'depot')->sum('transacmontant');
 
-        $sum_paye = $this->calculFrais($sum_t, $marchandFounded->tranche_transac, "depot");
 
+
+        $sum_paye = $this->calculFrais($sum_t, $marchandFounded->tranche_transac, "depot");
         $sum_r = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->where('type', 'retrait')->sum('transacmontant');
         $sum_retire = $this->calculFrais($sum_r, $marchandFounded->tranche_retrait, "retrait");
         $solde = $sum_paye - $sum_retire;
@@ -310,12 +335,28 @@ class TransactionController extends Controller
         $feesAmount = DB::table('view_transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->sum('montantfrais');
         $periodeDebut = "";
         $periodeFin = "";
-        return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand','marchandFounded'));
+
+        return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand', 'marchandFounded', 'sum_pending', 'trans_pending'));
       }
     }
 
     if (request()->input('marchand_selected') == null) {
       if (auth()->user()->role == 'superAdmin') {
+
+        $sum_pending = Transaction::where('statut', 'INITIATED')->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->sum('transacmontant');
+
+        $trans_pending = Transaction::where('statut', "INITIATED")->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->get()->count();
+
 
         $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
           return $query->whereDate('created_at', '>=', $periodeDebut);
@@ -351,6 +392,25 @@ class TransactionController extends Controller
           })->sum('montantfrais');
       } else {
 
+
+
+
+        $sum_pending =  Transaction::where('marchand_id', auth()->user()->marchand_id)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('marchand_id', auth()->user()->marchand_id)->where('statut', 'INITIATED')->sum('transacmontant');
+
+        $trans_pending = Transaction::where('statut', "INITIATED")->where('marchand_id', auth()->user()->marchand_id)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('marchand_id', auth()->user()->marchand_id)->get()->count();
+
+
+
         $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
           return $query->whereDate('created_at', '>=', $periodeDebut);
         })
@@ -379,10 +439,24 @@ class TransactionController extends Controller
           })->sum('montantfrais');
       }
       //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
-      return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand','marchandFounded'));
-    }
-    else{
+      return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand', 'marchandFounded', 'sum_pending', 'trans_pending'));
+    } else {
       if (auth()->user()->role == 'superAdmin') {
+
+        $sum_pending = Transaction::where('statut', 'INITIATED')->where('marchand_id', $marchandToFind)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->sum('transacmontant');
+
+        $trans_pending = Transaction::where('statut', "INITIATED")->where('marchand_id', $marchandToFind)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->get()->count();
+
 
         $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->where('marchand_id', $marchandToFind)->when($periodeDebut, function ($query) use ($periodeDebut) {
           return $query->whereDate('created_at', '>=', $periodeDebut);
@@ -418,6 +492,21 @@ class TransactionController extends Controller
           })->sum('montantfrais');
       } else {
 
+        $sum_pending =  Transaction::where('marchand_id', auth()->user()->marchand_id)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('marchand_id', auth()->user()->marchand_id)->where('statut', 'INITIATED')->sum('transacmontant');
+
+        $trans_pending = Transaction::where('statut', "INITIATED")->where('marchand_id', auth()->user()->marchand_id)->when($periodeDebut, function ($query) use ($periodeDebut) {
+          return $query->whereDate('created_at', '>=', $periodeDebut);
+        })
+          ->when($periodeFin, function ($query) use ($periodeFin) {
+            return $query->whereDate('created_at', '<=', $periodeFin);
+          })->where('marchand_id', auth()->user()->marchand_id)->get()->count();
+
+
         $nb_t = DB::table('transactions')->where('statut', 'SUCCESS')->when($periodeDebut, function ($query) use ($periodeDebut) {
           return $query->whereDate('created_at', '>=', $periodeDebut);
         })
@@ -445,9 +534,64 @@ class TransactionController extends Controller
             return $query->whereDate('created_at', '<=', $periodeFin);
           })->sum('montantfrais');
       }
+
+
+      $start = Carbon::parse(User::min("created_at"));
+      $end = Carbon::now();
+      $period = CarbonPeriod::create($start, "1 month", $end);
+
+      $usersPerMonth = collect($period)->map(function ($date) {
+          $endDate = $date->copy()->endOfMonth();
+
+          return [
+              "count" => User::where("created_at", "<=", $endDate)->count(),
+              "month" => $endDate->format("Y-m-d")
+          ];
+      });
+
+      $data = $usersPerMonth->pluck("count")->toArray();
+      $labels = $usersPerMonth->pluck("month")->toArray();
+
+      $chart = Chartjs::build()
+          ->name("UserRegistrationsChart")
+          ->type("line")
+          ->size(["width" => 400, "height" => 200])
+          ->labels($labels)
+          ->datasets([
+              [
+                  "label" => "User Registrations",
+                  "backgroundColor" => "rgba(38, 185, 154, 0.31)",
+                  "borderColor" => "rgba(38, 185, 154, 0.7)",
+                  "data" => $data
+              ]
+          ])
+          ->options([
+              'scales' => [
+                  'x' => [
+                      'type' => 'time',
+                      'time' => [
+                          'unit' => 'month'
+                      ],
+                      'min' => $start->format("Y-m-d"),
+                  ]
+              ],
+              'plugins' => [
+                  'title' => [
+                      'display' => true,
+                      'text' => 'Monthly User Registrations'
+                  ]
+              ]
+          ]);
+
       //dd("=====nb_t======>", $nb_t, "=====solde======>", $solde, "=====paye======>", $sum_paye,"=====retrait======>", $sum_retire);
-      return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand','marchandFounded'));
+      return view('transaction.state', compact('nb_t', 'solde', 'sum_paye', 'sum_retire', 'periodeDebut', 'periodeFin', 'feesAmount', 'allMarchand', 'marchandFounded', 'sum_pending', 'trans_pending','chart'));
     }
+
+
+
+
+
+
 
 
   }

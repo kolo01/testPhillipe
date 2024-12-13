@@ -88,7 +88,7 @@ class DashboardController extends Controller
         $mapData = [
             "dep" => $graphs->toArray(),
         ];
-
+        dd($mapData);
         return view('dashboard.dashboard', [
             'transactions' =>  $transactions,
             'total_success' =>  $total_success,

@@ -85,18 +85,18 @@
                                     </div>
                                 </div>
                                 <!-- <div class="col-md-6 mb-3">
-                                            <div class="p-3 border bg-light">
-                                                Solde
-                                                <hr>
-                                                <p class="text-center" style="color:#3498DB;font-weight:bold;">
-                                                   @if ($solde)
+                                                    <div class="p-3 border bg-light">
+                                                        Solde
+                                                        <hr>
+                                                        <p class="text-center" style="color:#3498DB;font-weight:bold;">
+                                                           @if ($solde)
     {{ number_format($solde, 0, ' ', ' ') }}
 @else
     {{ $solde }}
     @endif
-                                                </p>
-                                            </div>
-                                        </div> -->
+                                                        </p>
+                                                    </div>
+                                                </div> -->
                                 <div class="col-md-3 mb-3">
                                     <div class="p-3 border bg-light">
                                         Montant reçu
@@ -137,6 +137,32 @@
                                         </p>
                                     </div>
                                 </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="p-3 border bg-light">
+                                        Transactions en attente
+                                        <hr>
+                                        <p class="text-center" style="color:#3498DB;font-weight:bold;">
+                                            @if ($trans_pending)
+                                                {{ $trans_pending }}
+                                            @else
+                                                0
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="p-3 border bg-light">
+                                        Montant en attente
+                                        <hr>
+                                        <p class="text-center" style="color:#3498DB;font-weight:bold;">
+                                            @if ($sum_pending)
+                                                {{ $sum_pending }}
+                                            @else
+                                                0
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
 
                             </div>
                         </div>
@@ -145,7 +171,146 @@
             </div>
         </div>
         <!-- row -->
+
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12">
+              <div class="card">
+                  <div class="card-header">
+                      <h4 class="mb-0">Statistique des transactions</h4>
+                  </div>
+                  <div class="card-body">
+                      <div class="alert alert-success alert-dismissible fade show" role="alert">
+                          @php
+                              $hour = date('H');
+                              $greeting = ($hour < 12) ? 'Bonjour' : 'Bonsoir';
+                          @endphp
+                          <strong>{{$greeting}} M/Mme {{auth()->user()->username}}</strong>, ce graphique affiche les transactions des <strong>30 derniers jours</strong>.
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                      <ul class="list-inline text-center m-t-30">
+                          <li>
+                              <h5><i class="fa fa-circle m-r-5 orange"></i>Orange </h5>
+                          </li>
+                          <li>
+                              <h5><i class="fa fa-circle m-r-5 mtn"></i>MTN</h5>
+                          </li>
+                          <li>
+                              <h5><i class="fa fa-circle m-r-5 moov"></i>Moov</h5>
+                          </li>
+                          <li>
+                              <h5><i class="fa fa-circle m-r-5 wave"></i>Wave</h5>
+                          </li>
+                      </ul>
+                      <div id="paychart"></div>
+                      {{-- <div id="retchart"></div> --}}
+                  </div>
+              </div>
+          </div>
+      </div>
+
     </div>
 
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+
+var mapData = @json($mapData);
+var dep = mapData.dep;
+//var ret = mapData.ret;
+var p = [];
+//var r = [];
+var dp = [];
+//var dr = [];
+dep.forEach(function(item) {
+    p.push(item.transaction_count);
+    dp.push(item.date);
+});
+/*
+ret.forEach(function(item) {
+    r.push(item.transacmontant);
+    dr.push(item.date);
+}); */
+console.log('===================Tableau P=================')
+console.log(p);
+console.log('--------------------------------------------------')
+console.log(dp);
+console.log('===================Fin Tableau P=================')
+console.log('===================Tableau R=================')
+//console.log(r);
+console.log('--------------------------------------------------')
+//console.log(dr);
+console.log('=====================Fin Tableau R==============')
+var payOptions = {
+        chart: {
+            height: 350,
+            type: "line",
+            stacked: false
+        },
+        dataLabels: {
+            enabled: false
+        },
+        colors: ["#247BA0", "#247BA0"],
+        series: [
+            {
+            name: "Transaction",
+            data: p
+            }
+        ],
+        stroke: {
+            width: [4, 4]
+        },
+        plotOptions: {
+            bar: {
+            columnWidth: "20%"
+            }
+        },
+        xaxis: {
+            categories: dp
+        },
+        yaxis: [
+            {
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#247BA0"
+            },
+            labels: {
+                style: {
+                colors: "#247BA0"
+                }
+            },
+            title: {
+                text: "NOMBRE DE TRANSACTION (jOUR)",
+                style: {
+                color: "#247BA0"
+                }
+            }
+            },
+        ],
+        tooltip: {
+            shared: false,
+            intersect: true,
+            x: {
+            show: false
+            }
+        },
+        legend: {
+            horizontalAlign: "left",
+            offsetX: 40
+        }
+    };
+
+var payChart = new ApexCharts(document.querySelector("#paychart"), payOptions);
+
+payChart.render();
+
+    </script>
+
 @endsection
+
+
+
