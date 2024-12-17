@@ -125,6 +125,16 @@ class PaiementController extends Controller
 
     }
 
+    public function successURL(Request $request)
+    {
+        return view('pages.fail');
+    }
+
+    public function failedURL(Request $request)
+    {
+        return view('pages.success');
+    }
+
 
 
     public function openLink($id){
