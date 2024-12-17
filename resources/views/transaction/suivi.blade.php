@@ -13,6 +13,15 @@
                                 <input type="text" name="id_paie" placeholder="Rechercher par un identifiant de transaction" class="form-control" id="transaction">
                             </div>
                             <div class="form-group col-md-4">
+                                <label for="id_paie">MARCHAND</label>
+                                <select name="marchand" id="marchand" class="form-control">
+                                    <option value="">Choisir</option>
+                                    @foreach ($marchands as $marchands)
+                                    <option value="{{$marchands->id}}">{{$marchands->nom_marchand}}</option>  
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
                                 <label for="status">Statut</label>
                                 <select name="status" id="status" class="form-control">
                                     <option value="">Choisir</option>

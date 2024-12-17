@@ -26,6 +26,7 @@ class TransactionController extends Controller
         $statut = request()->input('status');
         $type = request()->input('type');
         $marchand =  Marchand::find(auth()->user()->marchand_id);
+        $marchands =  Marchand::all();
         $nom_marchand = $marchand->nom; 
         $marchand_id = $marchand->id; 
         $service_status = $marchand->service_status; 
@@ -68,13 +69,13 @@ class TransactionController extends Controller
             $transactions_excel = $trQuery->orderby('created_at', 'desc')->get();
             session(['transactions' => $transactions_excel]);
             $transactions = $trQuery->orderby('created_at', 'desc')->paginate(5);
-            $html = view('transaction.data', compact('transactions','totalTransactions'))->render();
+            $html = view('transaction.data', compact('transactions','totalTransactions','marchands'))->render();
     
             if (request()->ajax()) {
                 return response()->json($html);
             }
                   
-        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions', 'html'));
+        return view('transaction.suivi', compact('transactions','nom_marchand','marchand_id','totalTransactions', 'html','marchands'));
     }
 
 

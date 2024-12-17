@@ -19,15 +19,10 @@ class DashboardController extends Controller
     
     public function index()
     {   
-       // $transactions = Transaction::where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
-        //$total_success = Transaction::where('statut', '=', 'SUCCESS')->where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
-       // $total_failed = Transaction::where('statut', '=', 'FAILED')->where('marchand_id', '=', auth()->user()->marchand_id)->get()->count();
-        //$solde = $this->soldeCompte();
         $marchand =  Marchand::find(auth()->user()->marchand_id);
         $nom_marchand = $marchand->nom; 
         $marchand_id = $marchand->id; 
         $service_status = $marchand->service_status; 
-        //$this->soldeTransaction(auth()->user()->marchand_id), $this->soldeRetrait(auth()->user()->marchand_id))
         if(auth()->user()->role == 'superAdmin'){
             $t = $this->GsoldeTransaction() - $this->GsoldeRetrait();
             if ($service_status == 1) {
@@ -35,14 +30,13 @@ class DashboardController extends Controller
                 $transactions = DB::connection('mysql2')->table('transactions')->get()->count();
                 $total_success = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'SUCCESS')->get()->count();
                 $total_failed = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'FAILED')->get()->count();
-                $solde = '0';//DB::connection('mysql2')->table('transactions')->where('type','depot')->where('statut', '=', 'SUCCESS')->sum('transacmontant');
+                $solde = '0';
             } else {
                 $graph = DB::table('view_graph_t_last_30_days')->get();
                 $transactions = Transaction::where('marchand_id', '!=', '')->get()->count();
                 $total_success = Transaction::where('statut', '=', 'SUCCESS')->get()->count();
                 $total_failed = Transaction::where('statut', '=', 'FAILED')->get()->count();
                 $solde = $t;
-
             }
         }else{
             if ($service_status == 1) {
