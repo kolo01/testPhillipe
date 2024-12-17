@@ -547,4 +547,29 @@ class CompteController extends Controller
     // dd($allInfo);
     return redirect()->route('marchand.ribindex')->with('success', 'Paiement accepté avec succès.');
   }
+
+
+  public function UpdateProfilsPic(Request $request){
+
+
+    // dd($request);
+    // Valider les données du formulaire
+
+    if ($request->hasFile('photoProfils')){
+      $file = $request->file('photoProfils');
+       // Récupérer le nom d'origine du fichier
+       $photoProfils = $file->getClientOriginalName();
+
+       // Déplacer le fichier vers le répertoire de destination
+       $file->move(public_path('uploads'), $photoProfils);
+
+       DB::table('marchands')
+              ->where('id', auth()->user()->marchand_id)
+              ->update(['photo' =>$photoProfils ]);
+    }
+
+
+    return redirect()->back()->with('success', 'Le RIB a été modifié avec succès.');
+
+  }
 }

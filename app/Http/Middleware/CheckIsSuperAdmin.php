@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class CheckIsCommercial
+class CheckIsSuperAdmin
 {
     /**
      * Handle an incoming request.
@@ -17,7 +17,7 @@ class CheckIsCommercial
     public function handle(Request $request, Closure $next)
     {
          // Vérifier si l'utilisateur est authentifié et n'est pas en mode test
-    if (auth()->check() && (auth()->user()->isInTest()) != 1 && (auth()->user()->role) == "commercial") {
+    if (auth()->check() && (auth()->user()->isInTest()) != 1 && (auth()->user()->role) == "superAdmin") {
       return $next($request);
     }
 
