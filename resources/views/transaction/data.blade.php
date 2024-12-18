@@ -120,50 +120,9 @@
             </tbody>
 
         </table>
-        <div class="row col-md-12 justify-content-center"> {{ $transactions->links('vendor.pagination.bootstrap-4')  }}</div> 
+        <div class="row col-md-12 justify-content-center"> {{$transactions->links()}}</div> 
 
     </div>
 </div>
-<script>
-    var transactions = @json($transactions);
-    var totalTransactions = @json($totalTransactions);
-    $('#results').val(transactions);
-    $('#nb').html(totalTransactions).show();
-
-    //*======================action de pagination
-$('.page-link').on('click', function(e) {
-  e.preventDefault();
-  alert("page-link");
-  // Récupère l'URL de la page cliquée
-  var pageUrl = $(this).attr('href');
-  // Si l'élément n'a pas de lien (dans le cas d'un span pour la page active), on arrête
-  if (!pageUrl) {
-      return;
-  }
-  // Récupère le numéro de page
-  var page = pageUrl.split('page=')[1];
-  // Appelle la fonction pour charger la page
-  fetch_page(page);
-});
-//*======================Fin pagination
-
-
-//*======================Fonction de Pagination
-
-function fetch_page(page) {
-$.ajax({
-    url:pagination,
-    data:'page= '+ page ,
-    type:'get',
-    success: function(data) {
-    $(".listetransaction").html(data).show();
-       //delAnddetail();
-    },  
- });
-
-}
-//*======================Fin Pagination
-
-</script>
 
 
