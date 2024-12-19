@@ -498,19 +498,19 @@ class MarchandController extends Controller
 
     public function ManageTransactionMarchand()
     {
-
+          
          if(auth()->user()->role == 'superAdmin'){
             $solde = $this->GsoldeCompte();
             $reference_client = DB::table('marchands')->where('id', auth()->user()->marchand_id)->first()->refercence_cl;
             $link = 'https://account-marchand.babimo.com/collect/?type='.base64_encode($reference_client);
-            $retraits = DB::table('retrait_marchands')->orderby('created_at','desc')->get();
+            $retraits = DB::table('retrait_marchands')->orderby('created_at','desc')->limit(50);
          }else {
             $solde = $this->soldeCompte();
             $reference_client = DB::table('marchands')->where('id', auth()->user()->marchand_id)->first()->refercence_cl;
             $link = 'https://account-marchand.babimo.com/collect/?type='.base64_encode($reference_client);
-            $retraits = DB::table('retrait_marchands')->where('marchand_id', '=', auth()->user()->marchand_id)->orderby('created_at','desc')->get();
+            $retraits = DB::table('retrait_marchands')->where('marchand_id', '=', auth()->user()->marchand_id)->orderby('created_at','desc')->limit(50);;
          }
-
+       
         return view('marchand.soldeManager', ['solde' => $solde, 'retraits' => $retraits, "link" => $link]);
     }
 

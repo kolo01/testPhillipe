@@ -97,9 +97,9 @@
                                 <th scope="col">Montant retiré</th>
                                 <th scope="col">Montant perçu</th>
                                 <th scope="col">Frais</th>
-                                <!-- <th scope="col">Montant restant</th> -->
-                                <th scope="col">Date de la demande</th>
-                                <th scope="col">Status de la demande</th>
+                                <th scope="col">Montant restant</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Status</th>
                                 <th scope="col">Mode de paiement</th>
                                 @if(auth()->user()->role == "superAdmin")
                                  <th scope="col">Actions</th>
@@ -108,7 +108,6 @@
                         </thead>
                         <tbody>
                            @foreach($retraits as $retrait)
-
                            @php
                             $fraistransaction = App\Models\Transaction::where('notif_token', $retrait->notif_token)->first()->fraistransaction ?? '2';
                            @endphp
@@ -130,22 +129,23 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @switch($retrait->methodpaiement)
-                                        @case('WAVE_CI')
-                                            WAVE CI
-                                            @break
-                                        @case('MTN_CI')
-                                            MTN CI
-                                            @break
-                                        @case('MOOV_CI')
-                                            MOOV CI
-                                            @break
-                                        @case('OM_CI')
-                                            Orange Money CI
-                                            @break
-                                        @default
-                                            Mode de paiement non spécifié
-                                    @endswitch
+                                    <div class="dash_prt_thumb">
+                                        @if($retrait->methodpaiement == "OM_CI")
+                                             <img src="{{ asset('assets/img/image/operateurs/orange.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
+                                         @endif
+         
+                                         @if($retrait->methodpaiement == "WAVE_CI")
+                                             <img src="{{ asset('assets/img/image/operateurs/wave.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
+                                         @endif
+         
+                                         @if($retrait->methodpaiement == "MTN_CI")
+                                             <img src="{{ asset('assets/img/image/operateurs/mtn.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
+                                         @endif
+         
+                                         @if($retrait->methodpaiement == "MOOV_CI")
+                                             <img src="{{ asset('assets/img/image/operateurs/moov.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
+                                         @endif
+                                     </div>
                                 </td>
                                 @if(auth()->user()->role == "superAdmin")
                                 <td>      
@@ -159,7 +159,6 @@
                             </tr>           
                             @endforeach
                         </tbody>
-
                     </table>
                 </div>
             </div>

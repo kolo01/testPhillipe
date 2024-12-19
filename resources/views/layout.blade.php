@@ -10,7 +10,7 @@
 
     <!-- Custom CSS -->
     <link href="{{ asset('assets/css/styles.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
     <link rel="icon" href="{{ asset('assets/image/logo/logo.png') }}" type="image/x-icon">
     <script src="https://cdn.plot.ly/plotly-2.20.0.min.js" charset="utf-8"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
@@ -320,8 +320,7 @@
     <script src="{{ asset('assets/js/imagesloaded.js') }}"></script>
     <script src="{{ asset('assets/js/daterangepicker.js') }}"></script>
     <script src="{{ asset('assets/js/custom.js') }}"></script>
-    <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
             // $('#search').on('keyup', function() {
@@ -378,14 +377,12 @@
     <!-- ============================================================== -->
     <script src="{{ asset('assets/js/env.js') }}"></script>
 
-<<<<<<< HEAD
         </script>
          @yield('page-scripts')
       
 	</body>
     
 </html>
-=======
     <script src="{{ asset('assets/js/lkll.js') }}"></script>
     <script>
         TESTER = document.getElementById('tester');
@@ -401,4 +398,3 @@
 </body>
 
 </html>
->>>>>>> features/BP-002
