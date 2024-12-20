@@ -120,8 +120,7 @@
             </tbody>
 
         </table>
-        <div class="row col-md-12 justify-content-center"> {{$transactions->links()}}</div> 
-
+        <div class="row col-md-12 justify-content-center"> {!! $transactions->links() !!}</div> 
     </div>
 </div>
 

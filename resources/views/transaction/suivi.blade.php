@@ -84,16 +84,16 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12">
                     <div class="dashboard_property listetransaction chargement text-center justify-content-center">
-                        {{-- <div class="table-responsive overflow-auto" style=" overflow: auto;">
+                        <div class="table-responsive overflow-auto" style=" overflow: auto;">
                             <table class="table table-responsive overflow-auto" id="myTable" data-order-test='[[ 1, "desc" ]]'>
                                 <thead class="thead-dark">
                                     <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Opérateur</th>
                                     <th scope="col">Marchand</th>
-                                    <th scope="col">Mode paiement</th>
+                                    <th scope="col">Mode.P</th>
                                     <th scope="col">Date</th>
-                                    <th scope="col" class="m2_hide">Description</th>
+                                    <th scope="col" class="m2_hide">Desc.</th>
                                     <th scope="col">Tel.</th>
                                     <th scope="col" class="m2_hide">Montant</th>
                                     <th scope="col">Frais</th>
@@ -117,15 +117,15 @@
                                                    @if($transaction->modepaiement == "OM_CI")
                                                         <img src="{{ asset('assets/img/image/operateurs/orange.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "WAVE_CI")
                                                         <img src="{{ asset('assets/img/image/operateurs/wave.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "MTN_CI")
                                                         <img src="{{ asset('assets/img/image/operateurs/mtn.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "MOOV_CI")
                                                         <img src="{{ asset('assets/img/image/operateurs/moov.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
                                                     @endif
@@ -139,15 +139,15 @@
                                                      @if($transaction->modepaiement == "OM_CI")
                                                      <span>{{"Orange Money"}}</span>
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "WAVE_CI")
                                                     <span>{{"Wave"}}</span>
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "MTN_CI")
                                                       <span>{{"MTN Momo"}}</span>
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "MOOV_CI")
                                                     <span>{{"Moov"}}</span>
                                                     @endif
@@ -203,14 +203,14 @@
                                     </tr>    
                                     @endforeach
                                 </tbody>
-
+                    
                             </table>
-
-                        </div> --}}
+                            <div class="row col-md-12 justify-content-center"> {!! $transactions->links() !!}</div> 
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- row -->       
+            <!-- row listetransaction chargement -->       
         </div>
             
     </div>
@@ -219,11 +219,11 @@
 {{-- page scripts --}}
 @section('page-scripts')
 <script>
-    var html = @json($html);
-    var loader = "<img src='{{asset('assets/loading/loading.gif')}}' style='width:65px; height:65px;text-align:center;justify-content:center;' />";
-    var searcht = "{{route('search.transactions')}}";
+    // var html = @json($html);
+    // var loader = "<img src='{{asset('assets/loading/loading.gif')}}' style='width:65px; height:65px;text-align:center;justify-content:center;' />";
+    // var searcht = "{{route('search.transactions')}}";
     var pagination = "{{route('liste.transactions')}}";
 </script>
-<script src="{{ asset('assets/js/transaction.js?t=' . time()) }}"></script>
+{{-- <script src="{{ asset('assets/js/transaction.js?t=' . time()) }}"></script> --}}
 @endsection
 {{-- end page scripts --}}

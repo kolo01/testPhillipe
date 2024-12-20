@@ -1,6 +1,6 @@
 
 /*=========================================================================================
-    File Name: app-transaction.js
+    File Name: transaction.js
     Description: gérer les transactions de BPAY
     --------------------------------------------------------------------------------------
     Version: 1.0
@@ -8,7 +8,7 @@
 
 
 $(function () {
-     //* =======================Chargement à l'affichage de la liste des règles de sécurité=======================================
+     //* =======================Chargement à l'affichage de la liste des transactions=======================================
      $.ajaxSetup({
       headers: {
          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -23,12 +23,25 @@ $(function () {
         $(".listetransaction").show();
     }, 700);
 
-     //*======================variable declaration=======================
+     //*======================variable declaration===========================================================================
 
   afficheGetAll(html);
 
   function afficheGetAll(html) {
      $(".listetransaction").html(html).show();
+  }
+
+  function afficheByAjax(url) {
+    $.ajax({
+      url: url,  // Remplace par l'URL de ton API ou endpoint
+      type: 'GET',
+      success: function(response) {
+        afficheGetAll(response);
+      },
+      error: function(xhr, status, error) {
+          console.error("Erreur afficheByAjax : " + error);
+      }
+    });
   }
   //*=======================Rechercher TRANSACTION=======================
   $("#FormRechtransaction").on('submit', function(e) { 
@@ -46,8 +59,7 @@ $(function () {
       success:function(data) {
         console.log(data)
         $(".chargement").html(loader).hide();
-        $(".listetransaction").html(data).show();
-        //delAnddetail();
+        afficheGetAll(data);
       },
       error:function(err) {
         console.log(err);
@@ -59,43 +71,13 @@ $(function () {
   //*====================================================================
 
 //*======================action de pagination
-$('.page-link').on('click', function(e) {
+$('.page-item a.page-link').click(function(e){
+  alert("paginate");
   e.preventDefault();
-  alert("page-link");
-  // Récupère l'URL de la page cliquée
-  var pageUrl = $(this).attr('href');
-  // Si l'élément n'a pas de lien (dans le cas d'un span pour la page active), on arrête
-  if (!pageUrl) {
-      return;
-  }
-  // Récupère le numéro de page
-  var page = pageUrl.split('page=')[1];
-  // Appelle la fonction pour charger la page
-  fetch_page(page);
+  var url = $(this).attr('href');
+  afficheByAjax(url);
 });
 //*======================Fin pagination
-
-
-//*======================Fonction de Pagination
-
-function fetch_page(page) {
-$.ajax({
-    url:pagination,
-    data:'page= '+ page ,
-    type:'get',
-    success: function(response) {
-    $(".listetransaction").html(response).show();
-    $(".pagination").html($(response).find(".pagination").html());
-    },  
- });
-
-}
-//*======================Fin Pagination
-
-
-
-
-
 
 });
    
