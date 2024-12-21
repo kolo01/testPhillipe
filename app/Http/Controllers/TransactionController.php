@@ -86,7 +86,7 @@ class TransactionController extends Controller
     $transactions = $trQuery->orderby('created_at', 'desc')->paginate(1000);
     $html = view('transaction.data', compact('transactions', 'totalTransactions','marchands'))->render();
     $html = "";
-    return view('transaction.suivi', compact('transactions', 'nom_marchand', 'marchand_id', 'totalTransactions', 'html', 'marchands'));
+    return view('transaction.suivi', compact('nom_marchand', 'marchand_id', 'totalTransactions', 'html', 'marchands'));
   }
 
 
@@ -157,16 +157,40 @@ class TransactionController extends Controller
     // Get the paginated transactions
     $transactions_excel = $trQuery->orderby('created_at', 'desc')->get();
     session(['transactions' => $transactions_excel]);
-    $transactions = $trQuery->orderby('created_at', 'desc')->paginate(1000);
-    $html = view('transaction.data', compact('transactions', 'totalTransactions','marchands'))->render();
+    // $transactions = $trQuery->orderby('created_at', 'desc')->paginate(1000);
+    // $html = view('transaction.data', compact('transactions', 'totalTransactions','marchands'))->render();
 
     // if (request()->ajax()) {
     //   return response()->json($html);
     // }
+    // Trier les colonnes si spécifié
+  if ($request->has('order')) {
+      $columns = $request->columns;
+      $order = $request->order[0];
+      $columnIndex = $order['column']; // index de la colonne triée
+      $direction = $order['dir'];     // direction du tri: asc ou desc
+      $trQuery->orderBy($columns[$columnIndex]['data'], $direction);
+  } else {
+      $trQuery->orderBy('created_at', 'desc');
+  }
 
-    $transactions->appends($returnedTable);
-    $html = "";
-    return view('transaction.suivi', compact('transactions', 'nom_marchand', 'marchand_id', 'totalTransactions', 'html', 'marchands'));
+  // Pagination
+  $perPage = $request->length; // Nombre d'éléments par page
+  $start = $request->start;    // Position de départ
+  $transactions = $trQuery->skip($start)->take($perPage)->get();
+  // Compter le nombre total d'enregistrements
+  $totalRecords = DB::table('transactions')->count();
+  $filteredRecords = $trQuery->count();
+  // Structure de la réponse pour Datatables
+  return response()->json([
+      'draw' => $request->draw,
+      'recordsTotal' => $totalRecords,
+      'recordsFiltered' => $filteredRecords,
+      'data' => $transactions,
+  ]);
+   // $transactions->appends($returnedTable);
+    //$html = "";
+    //  return view('transaction.suivi', compact('transactions', 'nom_marchand', 'marchand_id', 'totalTransactions', 'html', 'marchands'));
   }
 
 

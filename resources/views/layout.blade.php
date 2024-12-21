@@ -356,7 +356,8 @@
                         sortDescending: ": activer pour trier la colonne par ordre décroissant"
                     }
                 }
-            });
+            });    
+
 
         });
     </script>

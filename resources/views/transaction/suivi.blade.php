@@ -10,7 +10,7 @@
                         <div class="form-row">
                             <div class="form-group col-md-4">
                                 <label for="id_paie">TRANSACTION ID</label>
-                                <input type="text" name="id_paie" placeholder="Rechercher par un identifiant de transaction" class="form-control" id="transaction">
+                                <input type="text" name="id_paie" id="id_paie" placeholder="Rechercher par un identifiant de transaction" class="form-control" id="transaction">
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="id_paie">MARCHAND</label>
@@ -50,17 +50,17 @@
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="periode_debut">Date début</label>
-                                <input type="date" class="form-control" id="periode_debut" name="periode_debut">
+                                <input type="date" id="search-date-start" class="form-control" id="periode_debut" name="periode_debut">
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="periode_fin">Date fin</label>
-                                <input type="date" class="form-control" id="periode_fin" name="periode_fin">
+                                <input type="date" id="search-date-end" class="form-control" id="periode_fin" name="periode_fin">
                             </div>
                             <div class="form-group col-md-4 align-self-end">
-                                <button type="submit" id="" class="btn btn-primary btn-block">Rechercher</button>
+                                <button type="submit" id="btn-search" class="btn btn-primary btn-block">Rechercher</button>
                             </div>
                         </div>
-                        <div class="form-row">
+                        {{-- <div class="form-row">
                             <div class="col-md-12">
                                 <div class="p-2 border bg-light">      
                                     <p class="text-center" style="color:#3498DB;font-weight:bolder;font-size:100%;text-transform:uppercase;">
@@ -68,13 +68,13 @@
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </form>
                     <form action="{{route('export.excel')}}" method="post">
                         @csrf
                         <div class="form-row mt-3">
                             <div class="form-group col-md-12">
-                                <input type="hidden" name="results" id="results" value="{{json_encode($transactions)}}">
+                                {{-- <input type="hidden" name="results" id="results" value="{{json_encode($transactions)}}"> --}}
                                 <button type="submit" class="btn btn-success btn-block"> <i class="fas fa-file-excel" style="color: #fff"></i> Exporter le document </button>
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                 <div class="col-lg-12 col-md-12 col-sm-12">
                     <div class="dashboard_property listetransaction chargement text-center justify-content-center">
                         <div class="table-responsive overflow-auto" style=" overflow: auto;">
-                            <table class="table table-responsive overflow-auto" id="myTable" data-order-test='[[ 1, "desc" ]]'>
+                            <table id="suivi-transaction" class="table table-responsive overflow-auto" data-order-test='[[ 1, "desc" ]]'>
                                 <thead class="thead-dark">
                                     <tr>
                                     <th scope="col">#</th>
@@ -102,7 +102,7 @@
                                     <th scope="col" class="m2_hide">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody class="listetransaction chargement">
+                                {{-- <tbody class="listetransaction chargement">
                                     @php
                                         $i=1;
                                     @endphp
@@ -203,9 +203,9 @@
                                     </tr>    
                                     @endforeach
                                 </tbody>
-                    
+                     --}}
                             </table>
-                            <div class="row col-md-12 justify-content-center"> {!! $transactions->links() !!}</div> 
+                            {{-- <div class="row col-md-12 justify-content-center"> {!! $transactions->links() !!}</div>  --}}
                         </div>
                     </div>
                 </div>
@@ -221,9 +221,9 @@
 <script>
     // var html = @json($html);
     // var loader = "<img src='{{asset('assets/loading/loading.gif')}}' style='width:65px; height:65px;text-align:center;justify-content:center;' />";
-    // var searcht = "{{route('search.transactions')}}";
+    var search = "{{route('search.transactions')}}";
     var pagination = "{{route('liste.transactions')}}";
 </script>
-{{-- <script src="{{ asset('assets/js/transaction.js?t=' . time()) }}"></script> --}}
+<script src="{{ asset('assets/js/transaction.js?t=' . time()) }}"></script>
 @endsection
 {{-- end page scripts --}}
