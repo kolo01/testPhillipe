@@ -18,28 +18,28 @@ use Illuminate\Support\Facades\Log;
 
 
 class MarchandController extends Controller
-{   
+{
     use fondManager;
     /**
-     * Display a listing of the resource. 
+     * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
- 
+
 
     public function index()
-    {     
+    {
         $marchands = DB::table('marchands')->get();
 
         $total = $marchands->count();
-      
+
         $result = $marchands->map(function ($item){
-            
+          
                 $item->solde = $this->soldeByCompte($item->id);
 
                 return $item;
             });
-    
+
         return view('marchand.liste-marchand', compact('marchands','total'));
     }
 
@@ -49,8 +49,10 @@ class MarchandController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {   
-        return view('marchand.ajouter-marchand');
+    {
+      $allCommercial = DB::table('users')->where('role','commercial')->get();
+    //   dd($allCommercial);
+        return view('marchand.ajouter-marchand', compact('allCommercial'));
     }
 
     /**
@@ -60,43 +62,44 @@ class MarchandController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
-        
+    {
+
+      
         try {
             $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789jhefbiueqjbfwqiubfhiuyf47832urb32yfbe2fy2beufjb23yfb23iufkb2';
             $reference_client = '';
             $charactersLength = strlen($characters);
-            
+
             for ($i = 0; $i < 7; $i++) {
                 $reference_client .= $characters[rand(0, $charactersLength - 1)];
             }
-        
+
             if ($request->hasFile('dfe') && $request->hasFile('rccm') && $request->hasFile('logo')) {
                 $file = $request->file('dfe');
-    
+
                 // Récupérer le nom d'origine du fichier
                 $dfe = $file->getClientOriginalName();
-    
+
                 // Déplacer le fichier vers le répertoire de destination
                 $file->move(public_path('uploads'), $dfe);
-        
+
                 $getrccm = $request->file('rccm');
-    
+
                 // Récupérer le nom d'origine du fichier
                 $rccm = $getrccm->getClientOriginalName();
-              
+
                 // Déplacer le fichier vers le répertoire de destination
                 $getrccm->move(public_path('uploads'), $rccm);
 
-                        
+
                 $getlogo = $request->file('logo');
-    
+
                 // Récupérer le nom d'origine du fichier
                 $logo = $getlogo->getClientOriginalName();
-              
+
                 // Déplacer le fichier vers le répertoire de destination
                 $getlogo->move(public_path('uploads'), $logo);
-
+               
                 $marchand = new Marchand();
                 $marchand->nom = $request->input('nom');
                 $marchand->registrecommerce = $request->input('registrecommerce');
@@ -104,6 +107,7 @@ class MarchandController extends Controller
                 $marchand->contact = $request->input('contact');
                 $marchand->dfe = $dfe;
                 $marchand->rccm = $rccm;
+                $marchand->commercial_id = $request->input('commercial_id');
                 $marchand->piece_identite = $logo;
                 $marchand->prevision_transac = $request->input('prevision_transac');
                 $marchand->tranche_transac = $request->input('tranche_transac');
@@ -115,13 +119,14 @@ class MarchandController extends Controller
             } else {
 
                 return back()->with('error', 'Veuillez joindre les documents');
-              
-            } 
+
+            }
 
 
-            
-        
+
+
         } catch (\Exception $err) {
+            dd($err);
             // Gestion des erreurs
            // return back()->with('error',  $err->getMessage());
            return back()->with('error', "Erreur d'enregistrement");
@@ -146,7 +151,7 @@ class MarchandController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    { 
+    {
           $marchand = DB::table('marchands')->where('id', $id)->first();
 
         return view('marchand.modifier-marchand', compact('marchand'));
@@ -160,10 +165,10 @@ class MarchandController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
-    {   
+    {
         try {
             $marchand = Marchand::find($request->input('id'));
-        
+
             if (!$marchand) {
                 return response()->json(['error' => 'Marchand non trouvé'], 404);
             }
@@ -184,7 +189,7 @@ class MarchandController extends Controller
 
             // Récupérer le nom d'origine du fichier
             $rccm = $getrccm->getClientOriginalName();
-          
+
             // Déplacer le fichier vers le répertoire de destination
             $getrccm->move(public_path('uploads'), $rccm);
 
@@ -193,11 +198,11 @@ class MarchandController extends Controller
 
             // Récupérer le nom d'origine du fichier
             $logo = $getlogo->getClientOriginalName();
-            
+
             // Déplacer le fichier vers le répertoire de destination
             $getlogo->move(public_path('uploads'), $logo);
 
-                    
+
             $marchand->nom = $request->input('nom');
             $marchand->registrecommerce = $request->input('registrecommerce');
             $marchand->infobusiness = $request->input('infobusiness');
@@ -214,14 +219,14 @@ class MarchandController extends Controller
             return back()->with('error', 'Veuillez joindre les document');
         }
 
-           
-        
+
+
         } catch (\Exception $err) {
             // Gestion des erreurs
             return back()->with('error', "Erreur de modification");
-        
+
         }
-        
+
 
         return view('marchand.modifier-marchand', compact('marchand'));
     }
@@ -240,7 +245,7 @@ class MarchandController extends Controller
     }
 
     public function TransfertMoney($id)
-    {  
+    {
         return back()->with('error', 'Le serveur est indisponible, veuillez réessayer plus tard.');
         $request = DB::table('retrait_marchands')->where('id', $id)->first();
         $op = $request->methodpaiement;
@@ -255,14 +260,14 @@ class MarchandController extends Controller
         $emailArray = User::where('marchand_id',$request->marchand_id)->select('email')->get();
         $new_montant = $montant - $frais;
         $array_marchand = [
-            'montant' =>$new_montant, 
+            'montant' =>$new_montant,
             'frais' => $frais,
-            'nom_marchand' => $nom_marchand, 
+            'nom_marchand' => $nom_marchand,
             'status' =>$status,
-            'telephone' => $telephone, 
+            'telephone' => $telephone,
         ];
-        
-        if ($montant <= 499) { 
+
+        if ($montant <= 499) {
             return back()->with('error', 'Le montant minimum de transfert est de 500 fcfa.');
          }
          //return response()->json('ok');
@@ -278,7 +283,7 @@ class MarchandController extends Controller
         } elseif ($op == 'WAVE_CI') {
           // Vérifier si le numéro de téléphone contient exactement dix chiffres
             if (strlen($telephone) === 10 && ctype_digit($telephone) && ($montant == $request->confirm_montant)) {
-                // Le numéro de téléphone est valide         
+                // Le numéro de téléphone est valide
                 $idem_key = uniqid($prefix = "RET-");
                 $curl = curl_init();
                 // 65f735b4-b44b-429d-b0a8-550701e2393a',
@@ -291,11 +296,11 @@ class MarchandController extends Controller
                     CURLOPT_FOLLOWLOCATION => true,
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'POST',
-                    CURLOPT_POSTFIELDS =>'{ 
+                    CURLOPT_POSTFIELDS =>'{
                     "currency": "XOF",
                     "receive_amount": "'.$new_montant.'",
                     "mobile": "+225'.$telephone.'"
-                    }', 
+                    }',
                     CURLOPT_HTTPHEADER => array(
                         'Content-Type: application/json',
                         'idempotency-key:'.$idem_key,
@@ -305,9 +310,9 @@ class MarchandController extends Controller
                 ));
 
                 $response = curl_exec($curl);
-                
+
                 curl_close($curl);
-                
+
                 try {
                     $rep = json_decode($response);
                     $result = $rep->status;
@@ -336,9 +341,9 @@ class MarchandController extends Controller
              // Vérifier si le numéro de téléphone contient exactement dix chiffres
             if (strlen($telephone) === 10 && ctype_digit($telephone) && ($montant == $request->confirm_montant)) {
                 //dd("momo ");
-                $curl = curl_init();                
+                $curl = curl_init();
                 curl_setopt_array($curl, array(
-                    CURLOPT_URL => 'https://proxy.momoapi.mtn.com/disbursement/token/', 
+                    CURLOPT_URL => 'https://proxy.momoapi.mtn.com/disbursement/token/',
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
                     CURLOPT_MAXREDIRS => 10,
@@ -357,7 +362,7 @@ class MarchandController extends Controller
 
                 //Mjk3ZDhiZGQtZjQxNS00MzU3LTk0NWEtYjEyNjhjZGZiYmE0OmY5ZDczNTk3OTA3NTQ5OTdiM2M5M2EwYWZlYTBlZWRi | API_KEY + API_USER
                 $curl_exec = curl_exec($curl);
-               
+
                 $response = json_decode($curl_exec);
                 $error = curl_error($curl);
                 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -367,7 +372,7 @@ class MarchandController extends Controller
                 if ($error) {
                     return response()->json(['status'=>500, 'message' => "Un problème est survenu ".$error]);
                 }elseif($response){
-                    
+
                     $curl_b = curl_init();
                     $config_b = [
                         CURLOPT_URL => 'https://proxy.momoapi.mtn.com/disbursement/v1_0/account/balance',
@@ -396,9 +401,9 @@ class MarchandController extends Controller
                     $httpcode_b = curl_getinfo($curl_b, CURLINFO_HTTP_CODE);
                     curl_close($curl_b);
                     $availableBalance = $balance->availableBalance;
-                   
 
-                
+
+
 
                     try{
 
@@ -420,8 +425,8 @@ class MarchandController extends Controller
                             },
                             "payerMessage": "Vous transférer de l\'argent de votre compte Babimo",
                             "payeeNote": "tests"
-                            }'; 
-                        
+                            }';
+
                             $config = [
                                 CURLOPT_URL => 'https://proxy.momoapi.mtn.com/disbursement/v1_0/transfer',
                                 CURLOPT_RETURNTRANSFER => true,
@@ -448,7 +453,7 @@ class MarchandController extends Controller
                             $error = curl_error($ch);
                             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
                             curl_close($curl);
-                     
+
                             if ($error) {
                                 return response()->json(['status'=>400, 'message' => "Un problème est survenu ".$error]);
                             }else{
@@ -483,34 +488,34 @@ class MarchandController extends Controller
                 #Le numéro de téléphone n'est pas valide
                 return back()->with('error', 'Impossible d\'effectuer le transfert, veuillez vérifier le numero de telephone et le montant.');
             }
-         
+
         } else {
             return back()->with('error', 'Le serveur est indisponible, veuillez réessayer plus tard.');
         }
-       
+
 
     }
 
     public function ManageTransactionMarchand()
-    {    
-
+    {
+          
          if(auth()->user()->role == 'superAdmin'){
             $solde = $this->GsoldeCompte();
             $reference_client = DB::table('marchands')->where('id', auth()->user()->marchand_id)->first()->refercence_cl;
             $link = 'https://account-marchand.babimo.com/collect/?type='.base64_encode($reference_client);
-            $retraits = DB::table('retrait_marchands')->orderby('created_at','desc')->get();
+            $retraits = DB::table('retrait_marchands')->orderby('created_at','desc')->limit(50);
          }else {
             $solde = $this->soldeCompte();
             $reference_client = DB::table('marchands')->where('id', auth()->user()->marchand_id)->first()->refercence_cl;
             $link = 'https://account-marchand.babimo.com/collect/?type='.base64_encode($reference_client);
-            $retraits = DB::table('retrait_marchands')->where('marchand_id', '=', auth()->user()->marchand_id)->orderby('created_at','desc')->get();
+            $retraits = DB::table('retrait_marchands')->where('marchand_id', '=', auth()->user()->marchand_id)->orderby('created_at','desc')->limit(50);;
          }
- 
+       
         return view('marchand.soldeManager', ['solde' => $solde, 'retraits' => $retraits, "link" => $link]);
     }
 
     public function active($id)
-    {   
+    {
         $q = DB::table('marchands')->where('id', $id);
         $marchands = $q->first();
         $service_status = $marchands->service_status;
@@ -525,7 +530,7 @@ class MarchandController extends Controller
 
 
     public function DemandeRetrait(Request $request)
-    {   
+    {
 
 
         $op = $request->operator;
@@ -546,11 +551,11 @@ class MarchandController extends Controller
         $merchant_transaction_id = strtoupper(uniqid("Ret-"));
 
         $array_marchand = [
-            'montant' =>$new_montant, 
+            'montant' =>$new_montant,
             'frais' => $frais,
-            'nom_marchand' => $nom_marchand, 
+            'nom_marchand' => $nom_marchand,
             'status' =>$status,
-            'telephone' => $telephone, 
+            'telephone' => $telephone,
         ];
 
 
@@ -574,9 +579,9 @@ class MarchandController extends Controller
             'methodpaiement' => $op,
             'notif_token' => $transaction_data['notif_token'],
             'montant_restant' => $solde - $new_montant
-        ];    
-        
-        
+        ];
+
+
         $marchand = (object)$array_marchand;
 
         if ($checking) { return response()->json('retraitEnCours'); }
@@ -588,13 +593,13 @@ class MarchandController extends Controller
         }else{
 
             $transaction = Transaction::create($transaction_data);
-            //$retrait =  RetraitMarchand::create($data); 
+            //$retrait =  RetraitMarchand::create($data);
             $retrait = $this->Retrait($data);
 
             try {
                 // Vérifier si le numéro de téléphone contient exactement dix chiffres
                 if (strlen($telephone) === 10 && ctype_digit($telephone) && $montant == $confirm_montant) {
-                    // Le numéro de téléphone est valide   
+                    // Le numéro de téléphone est valide
                     $cashin = [
                         "payment_method" => $request->operator,
                         "recipient_phone_number" => $telephone,
@@ -636,10 +641,10 @@ class MarchandController extends Controller
                                 break;
                             default:
                                 break;
-                        }            
+                        }
                         DB::table('retrait_marchands')->where('id', $retrait->id)->update(['status' => $status]);
                         return response()->json('succeeded');
-                    
+
                     }
                 } elseif($montant != $confirm_montant) {
                     return response()->json('failed');
@@ -650,7 +655,7 @@ class MarchandController extends Controller
                 }else{
                     return response()->json('failed');
                 }
-                    
+
             } catch(\Exception $e){
                 DB::table('retrait_marchands')->where('id', $retrait->id)->update(['status' => $status]);
                 Transaction::where('id', $transaction->id)->update(['status' => 'FAILED']);
@@ -669,7 +674,7 @@ class MarchandController extends Controller
    }
 
    public function CancelTransfertMoney($id)
-   {     
+   {
        DB::table('retrait_marchands')->where('id', $id)->update(['status' => 'ECHOUE']);
        return back()->with('success', 'Demande de transfert annulé avec succès');
    }
@@ -683,7 +688,7 @@ class MarchandController extends Controller
        shuffle($chiffres);
        $chaineNumeriqueMelangee = implode("", $chiffres);
        return $chaineNumeriqueMelangee;
-   
+
    }
 
    private function generateTransactionId()
@@ -693,12 +698,12 @@ class MarchandController extends Controller
        shuffle($chiffres);
        $chaineNumeriqueMelangee = implode("", $chiffres);
        return $chaineNumeriqueMelangee;
-       
-   
+
+
    }
 
    public function cashin($request)
-   {     
+   {
       $request = (object)$request;
       switch ($request->payment_method) {
         case 'OM_CI':
@@ -727,7 +732,7 @@ class MarchandController extends Controller
            "password_api" => "aqHZcMh69V",
            "call_back_url" => "https://b-pay.co/api/v1/babimo/callback",
        ];
-       
+
        $curl = curl_init();
        $curlOptions =  [
            CURLOPT_URL => "https://apidist.gutouch.net/apidist/sec/BABIM9924/cashin",
@@ -750,13 +755,13 @@ class MarchandController extends Controller
        //Close cURL session
        curl_close($curl);
        return ['response'=>$response, 'err'=>$err];
-   } 
+   }
 #-----------------------------END-------------------------------------
 
 #-----------------------------DEPOT-------------------------------------
 
 public function depot()
-{    
+{
      if(auth()->user()->role == 'superAdmin'){
         $reference_client = DB::table('marchands')->where('id', auth()->user()->marchand_id)->first()->refercence_cl;
         $depots = DB::table('depots')->orderby('created_at','desc')->get();
@@ -768,7 +773,7 @@ public function depot()
 }
 
 public function storeDepot(Request $request)
-{   
+{
     $amountWithoutSeparator = str_replace(' ', '', $request->montant);
     try{
         $depot = new Depot;
@@ -810,11 +815,11 @@ public function storeDepot(Request $request)
         Log::info("erreur d'enregsitrment des information du depot ". $e->getMessage());
        return response()->json('error: ' . $e->getMessage());
     }
-    
+
 }
 
 public function validDepotMoney($depotId)
-{   
+{
     $request = Depot::find($depotId);
     $getmarchand =  Marchand::find($request->marchand_id);
     $nom_marchand = $getmarchand->nom;

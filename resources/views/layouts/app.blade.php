@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Bpay') }}</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -78,6 +78,9 @@
 
         <main class="py-4">
             @yield('content')
+            <!-- BEGIN: Page JS-->
+            @yield('page-scripts')
+            <!-- END: Page JS-->
         </main>
     </div>
 </body>

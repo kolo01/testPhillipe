@@ -69,6 +69,7 @@
                                                     <option value="" selected>Choix du mode de connexion</option>
                                                     <option value="telephone">Telephone</option>
                                                     <option value="email">Email</option>
+                                                    <option value="password">Mot de passe</option>
                                                 </select>
                                             </div>
                                             <div class="form-group phone_page">
@@ -78,6 +79,14 @@
                                             </div>
                                             <div class="form-group email_page">
                                                 <input name="email" type="email" class="form-control" id="email" placeholder="Adresse email" data-fv-field="email" autocomplete="off" required><br>
+                                            </div>
+                                            <div class="password_page">
+                                                <div class="form-group">
+                                                    <input name="email" type="email" class="form-control" id="email" placeholder="Adresse email" data-fv-field="email" autocomplete="off" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <input name="password" type="password" class="form-control" id="password" placeholder="Password" data-fv-field="password" required>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-lg-12 col-sm-12">
@@ -104,20 +113,26 @@
     const conctactChoice = document.getElementById('conctactChoice');
     const phoneDiv = document.querySelector('.phone_page');
     const emailDiv = document.querySelector('.email_page');
+    const passwordDiv = document.querySelector('.password_page');
     phoneDiv.style.display = 'none';
     emailDiv.style.display = 'none';
+    passwordDiv.style.display = 'none';
 
 
     conctactChoice.addEventListener('change', function() {
 
         if (this.value == 'telephone') {
-   
             phoneDiv.style.display = 'block';
             emailDiv.style.display = 'none';
+            passwordDiv.style.display = 'none';
         } else if (this.value == 'email') {
-       
             phoneDiv.style.display = 'none';
             emailDiv.style.display = 'block';
+            passwordDiv.style.display = 'none';
+        } else if (this.value == 'password') {
+            phoneDiv.style.display = 'none';
+            emailDiv.style.display = 'none';
+            passwordDiv.style.display = 'block';
         }
     });
 

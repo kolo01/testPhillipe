@@ -5,12 +5,21 @@
             <div class="clearfix mb-3"></div>
             <div class="row">
                 <div class="col-lg-12 col-md-12">
-                    <form action="{{route('search.transactions')}}" method="post">
+                    <form action="{{route('search.transactions')}}" id="FormRechtransaction" method="post">
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-4">
                                 <label for="id_paie">TRANSACTION ID</label>
-                                <input type="text" name="id_paie" placeholder="Rechercher par un identifiant de transaction" class="form-control" id="transaction">
+                                <input type="text" name="id_paie" id="id_paie" placeholder="Rechercher par un identifiant de transaction" class="form-control" id="transaction">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="id_paie">MARCHAND</label>
+                                <select name="marchand" id="marchand" class="form-control">
+                                    <option value="">Choisir</option>
+                                    @foreach ($marchands as $marchands)
+                                    <option value="{{$marchands->id}}">{{$marchands->nom_marchand}}</option>  
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="status">Statut</label>
@@ -41,31 +50,31 @@
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="periode_debut">Date début</label>
-                                <input type="date" class="form-control" id="periode_debut" name="periode_debut">
+                                <input type="date" id="search-date-start" class="form-control" id="periode_debut" name="periode_debut">
                             </div>
                             <div class="form-group col-md-4">
                                 <label for="periode_fin">Date fin</label>
-                                <input type="date" class="form-control" id="periode_fin" name="periode_fin">
+                                <input type="date" id="search-date-end" class="form-control" id="periode_fin" name="periode_fin">
                             </div>
                             <div class="form-group col-md-4 align-self-end">
-                                <button type="submit" class="btn btn-primary btn-block">Rechercher</button>
+                                <button type="submit" id="btn-search" class="btn btn-primary btn-block">Rechercher</button>
                             </div>
                         </div>
-                        <div class="form-row">
+                        {{-- <div class="form-row">
                             <div class="col-md-12">
                                 <div class="p-2 border bg-light">      
                                     <p class="text-center" style="color:#3498DB;font-weight:bolder;font-size:100%;text-transform:uppercase;">
-                                        Nombre de Transaction: {{$totalTransactions}}
+                                        Nombre de Transaction: <span id="nb">{{$totalTransactions}}</span>
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </form>
                     <form action="{{route('export.excel')}}" method="post">
                         @csrf
                         <div class="form-row mt-3">
                             <div class="form-group col-md-12">
-                                <input type="hidden" name="results" value="{{json_encode($transactions)}}">
+                                {{-- <input type="hidden" name="results" id="results" value="{{json_encode($transactions)}}"> --}}
                                 <button type="submit" class="btn btn-success btn-block"> <i class="fas fa-file-excel" style="color: #fff"></i> Exporter le document </button>
                             </div>
                         </div>
@@ -74,17 +83,17 @@
             </div> 
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12">
-                    <div class="dashboard_property">
+                    <div class="dashboard_property listetransaction chargement text-center justify-content-center">
                         <div class="table-responsive overflow-auto" style=" overflow: auto;">
-                            <table class="table table-responsive overflow-auto" id="myTable" data-order-test='[[ 1, "desc" ]]'>
+                            <table id="suivi-transaction" class="table table-responsive overflow-auto" data-order-test='[[ 1, "desc" ]]'>
                                 <thead class="thead-dark">
                                     <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Opérateur</th>
                                     <th scope="col">Marchand</th>
-                                    <th scope="col">Mode paiement</th>
+                                    <th scope="col">Mode.P</th>
                                     <th scope="col">Date</th>
-                                    <th scope="col" class="m2_hide">Description</th>
+                                    <th scope="col" class="m2_hide">Desc.</th>
                                     <th scope="col">Tel.</th>
                                     <th scope="col" class="m2_hide">Montant</th>
                                     <th scope="col">Frais</th>
@@ -93,8 +102,7 @@
                                     <th scope="col" class="m2_hide">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                  
+                                {{-- <tbody class="listetransaction chargement">
                                     @php
                                         $i=1;
                                     @endphp
@@ -109,15 +117,15 @@
                                                    @if($transaction->modepaiement == "OM_CI")
                                                         <img src="{{ asset('assets/img/image/operateurs/orange.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "WAVE_CI")
                                                         <img src="{{ asset('assets/img/image/operateurs/wave.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "MTN_CI")
                                                         <img src="{{ asset('assets/img/image/operateurs/mtn.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "MOOV_CI")
                                                         <img src="{{ asset('assets/img/image/operateurs/moov.jpg') }}" width="100%;" style="border: 2px solid #e5e5e5; border-radius: 0.25rem;" alt="" srcset="">
                                                     @endif
@@ -131,15 +139,15 @@
                                                      @if($transaction->modepaiement == "OM_CI")
                                                      <span>{{"Orange Money"}}</span>
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "WAVE_CI")
                                                     <span>{{"Wave"}}</span>
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "MTN_CI")
                                                       <span>{{"MTN Momo"}}</span>
                                                     @endif
-
+                    
                                                     @if($transaction->modepaiement == "MOOV_CI")
                                                     <span>{{"Moov"}}</span>
                                                     @endif
@@ -192,19 +200,30 @@
                                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                             </a>
                                         </td> 
-                                
                                     </tr>    
                                     @endforeach
                                 </tbody>
-
+                     --}}
                             </table>
-
+                            {{-- <div class="row col-md-12 justify-content-center"> {!! $transactions->links() !!}</div>  --}}
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- row -->       
+            <!-- row listetransaction chargement -->       
         </div>
             
     </div>
+    
 @endsection
+{{-- page scripts --}}
+@section('page-scripts')
+<script>
+    // var html = @json($html);
+    // var loader = "<img src='{{asset('assets/loading/loading.gif')}}' style='width:65px; height:65px;text-align:center;justify-content:center;' />";
+    var search = "{{route('search.transactions')}}";
+    var pagination = "{{route('liste.transactions')}}";
+</script>
+<script src="{{ asset('assets/js/transaction.js?t=' . time()) }}"></script>
+@endsection
+{{-- end page scripts --}}

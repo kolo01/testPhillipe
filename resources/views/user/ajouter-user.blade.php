@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('content') 
+@section('content')
 <div class="col-lg-9 col-md-8 mt-3">
     <div class="dashboard-body">
         <!-- row -->
@@ -12,23 +12,23 @@
                         @csrf
                         <div class="submit-page">
                             <!-- Information -->
-                            <div class="frm_submit_block">	
+                            <div class="frm_submit_block">
                                     @if (session('error'))
                                         <div class="col-md-4  p-2 text-center">
-                                            <div class="alert text-white alert-danger" style="background: #e2062c;" role="alert"> {{session('error')}} 
+                                            <div class="alert text-white alert-danger" style="background: #e2062c;" role="alert"> {{session('error')}}
                                             </div>
                                         </div>
                                     @endif
                                     @if (session('success'))
                                         <div class="col-md-4  p-2 text-center">
-                                            <div class="alert text-white alert-success" style="background:green;"  role="alert"> {{session('success')}} 
+                                            <div class="alert text-white alert-success" style="background:green;"  role="alert"> {{session('success')}}
                                             </div>
                                         </div>
                                     @endif
                                 <h3 class="text-center">Ajouter un nouvel utilisateur</h3><br>
                                 <div class="frm_submit_wrap">
                                     <div class="form-row">
-                                    
+
                                         <div class="form-group col-lg-4 col-md-12">
                                             <label>Nom et prénoms</label>
                                             <input type="text" name="username" value="{{old('username')}}" class="form-control">
@@ -38,7 +38,7 @@
                                             <label>Numero téléphone </label>
                                             <input type="number" name="telephone" value="{{old('telephone')}}" class="form-control">
                                         </div>
-                                    
+
 
                                         <div class="form-group col-md-4">
                                             <label>Role</label>
@@ -49,9 +49,10 @@
                                                 <option value="user">Utilisateur</option>
                                                 <option value="deposant">Déposant</option>
                                                 <option value="caissiere">Caissière</option>
+                                                <option value="commercial">Commercial</option>
                                             </select>
                                         </div>
-                         
+
                                         <div class="form-group col-md-4">
                                             <label>Marchand</label>
                                             <select id="marchand_id" name="marchand_id" class="form-control" required>
@@ -66,14 +67,14 @@
                                             <label>Email</label>
                                             <input type="email" name="email" value="{{old('email')}}" class="form-control">
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group col-lg-12 col-md-12">
                                 <a href="{{route('users.index')}}" class="btn btn-danger ml-2 text-white" type="submit">Annuler & Retour</a>
                                 <button class="btn btn-secondary ml-2" type="submit">Valider</button>
-                            </div>        
+                            </div>
                         </div>
                     </form>
                 </div>
