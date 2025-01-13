@@ -12,11 +12,7 @@ font-family: Roboto, sans-serif;
 max-width: 650px;
 margin: 35px auto;
 }
-<<<<<<< HEAD
-</style>      
-=======
 </style>
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
     <div class="col-lg-9 col-md-8">
         <div class="dashboard-body">
 
@@ -112,11 +108,7 @@ margin: 35px auto;
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
-<<<<<<< HEAD
-                              </div>  
-=======
                               </div>
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
                             <ul class="list-inline text-center m-t-30">
                                 <li>
                                     <h5><i class="fa fa-circle m-r-5 orange"></i>Orange </h5>
@@ -138,17 +130,10 @@ margin: 35px auto;
                 </div>
             </div>
             <!-- row -->
-<<<<<<< HEAD
-            
-        
-        </div>
-    </div>  
-=======
 
 
         </div>
     </div>
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>

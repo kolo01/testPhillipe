@@ -36,21 +36,13 @@ class DashboardController extends Controller
                 $transactions = DB::connection('mysql2')->table('transactions')->get()->count();
                 $total_success = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'SUCCESS')->get()->count();
                 $total_failed = DB::connection('mysql2')->table('transactions')->where('statut', '=', 'FAILED')->get()->count();
-<<<<<<< HEAD
-                $solde = '0';
-=======
                 $solde = '0';//DB::connection('mysql2')->table('transactions')->where('type','depot')->where('statut', '=', 'SUCCESS')->sum('transacmontant');
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
             } else {
                 $graph = DB::table('view_graph_t_last_30_days')->get();
                 $transactions = Transaction::where('marchand_id', '!=', '')->get()->count();
                 $total_success = Transaction::where('statut', '=', 'SUCCESS')->get()->count();
                 $total_failed = Transaction::where('statut', '=', 'FAILED')->get()->count();
                 $solde = $t;
-<<<<<<< HEAD
-=======
-
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
             }
         }else{
             if ($service_status == 1) {
@@ -70,11 +62,7 @@ class DashboardController extends Controller
                 $graph = DB::table('transactions')
                 ->select(DB::raw('CAST(created_at AS DATE) AS transaction_date'), DB::raw('COUNT(*) AS transaction_count'))
                 ->where('statut', 'SUCCESS')
-<<<<<<< HEAD
-                ->where('marchand_id', '29')
-=======
                 ->where('marchand_id', auth()->user()->id)
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
                 ->where('created_at', '>=', now()->subDays(30))
                 ->groupBy(DB::raw('CAST(created_at AS DATE)'))
                 ->orderBy(DB::raw('CAST(created_at AS DATE)'), 'desc')
@@ -85,11 +73,6 @@ class DashboardController extends Controller
                 $solde = $this->soldeTransaction(auth()->user()->marchand_id) - $this->soldeRetrait(auth()->user()->marchand_id);
             }
         }
-<<<<<<< HEAD
-        
-=======
-
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
         $graphs = $graph->map(function($item) {
             $dateTimeParts = explode('T', $item->transaction_date);
             $datePart = $dateTimeParts[0];
@@ -98,16 +81,11 @@ class DashboardController extends Controller
             $item->date = $j[0]."-".$t[1]."-".$t[0];
             return $item;
         });
-<<<<<<< HEAD
-        
-=======
-
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
 
         $mapData = [
             "dep" => $graphs->toArray(),
         ];
-
+        // dd($mapData);
         return view('dashboard.dashboard', [
             'transactions' =>  $transactions,
             'total_success' =>  $total_success,
@@ -204,15 +182,9 @@ class DashboardController extends Controller
     }
 
     public function soldeRetrait($marchand_id){
-<<<<<<< HEAD
-        
-        $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('type','retrait')->where('marchand_id', '=', $marchand_id)->get();
-       
-=======
 
         $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('type','retrait')->where('marchand_id', '=', $marchand_id)->get();
 
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
        if ($montant_total->count() == 0 || $montant_total->count() == null) {
            $mt = 0;
        }else {
@@ -233,11 +205,6 @@ class DashboardController extends Controller
     public function GsoldeTransaction(){
 
         $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('type','depot')->get();
-<<<<<<< HEAD
-       
-=======
-
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
        if ($montant_total->count() == 0 || $montant_total->count() == null) {
            $mt = 0;
        }else {
@@ -255,15 +222,9 @@ class DashboardController extends Controller
     }
 
     public function GsoldeRetrait(){
-<<<<<<< HEAD
-        
-        $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('type','retrait')->get();
-       
-=======
 
         $montant_total = Transaction::where('statut', '=', 'SUCCESS')->where('type','retrait')->get();
 
->>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
        if ($montant_total->count() == 0 || $montant_total->count() == null) {
            $mt = 0;
        }else {
