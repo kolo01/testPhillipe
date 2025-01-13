@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('content')   
+@section('content')
 <style>
     @import url(https://fonts.googleapis.com/css?family=Roboto);
 
@@ -12,10 +12,14 @@ font-family: Roboto, sans-serif;
 max-width: 650px;
 margin: 35px auto;
 }
+<<<<<<< HEAD
 </style>      
+=======
+</style>
+>>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
     <div class="col-lg-9 col-md-8">
         <div class="dashboard-body">
-        
+
             <div class="clearfix mb-3"></div>
              @if(session('error'))
                 <div class="alert alert-danger">
@@ -23,32 +27,32 @@ margin: 35px auto;
                 </div>
             @endif
             <div class="row">
-    
+
                 <div class="col-lg-3 col-md-6 col-sm-12">
                     <div class="dashboard_stats_wrap widget-3">
                         <div class="dashboard_stats_wrap_content"><h5>{{$transactions}}</h5> <span>Transactions</span></div>
                         <div class="dashboard_stats_wrap-icon"><i class="ti-credit-card"></i></div>
-                    </div>	
+                    </div>
                 </div>
 
-                    
+
                 <div class="col-lg-3 col-md-6 col-sm-12">
                     <div class="dashboard_stats_wrap widget-1">
                         <div class="dashboard_stats_wrap_content"><h5>{{$total_success}}</h5> <span>Total succès</span></div>
-                    </div>	
+                    </div>
                 </div>
-                
+
                 <div class="col-lg-3 col-md-6 col-sm-12">
                     <div class="dashboard_stats_wrap widget-2">
                         <div class="dashboard_stats_wrap_content"><h5>{{$total_failed}}</h5> <span>Total échecs</span></div>
-                    </div>	
+                    </div>
                 </div>
-                
+
                 <div class="col-lg-3 col-md-6 col-sm-12">
                     <div class="dashboard_stats_wrap widget-4">
                         <div class="dashboard_stats_wrap_content"><h5> @if($montant_total){{number_format($montant_total, 0, ' ', ' ')}} @else {{$montant_total}} @endif xof</h5> <span>Montant total</span></div>
                         <div class="dashboard_stats_wrap-icon"><i class="ti-wallet"></i></div>
-                    </div>	
+                    </div>
                 </div>
 
             </div>
@@ -71,18 +75,18 @@ margin: 35px auto;
                                             <th></th>
                                         </tr>
                                     </thead>
-                                    
+
                                     <tbody>
                                         <tr>
                                             <td>11/05/2023 12:04</td>
                                             <td>Reçu de Konan Amoin Celine 07 89 24 2437 par Checkout API - référence client: PAIE-VCvJjy4Iix00192</td>
                                             <td>85 F</td>
-                                            <td>T_CPIDUMFTTU</td>                
+                                            <td>T_CPIDUMFTTU</td>
                                             <td class="text-truncate">
                                                 <a href="" class="btn btn-sm btn-secondary" onclick="return ('')">Rembourser</a>
                                                 <a href="" data-toggle="modal" data-target="#detailTransac-marchand" class="btn btn-sm btn-secondary">Détail</a>
-                                            </td>                                        
-                                        </tr>                                                   
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -108,7 +112,11 @@ margin: 35px auto;
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
+<<<<<<< HEAD
                               </div>  
+=======
+                              </div>
+>>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
                             <ul class="list-inline text-center m-t-30">
                                 <li>
                                     <h5><i class="fa fa-circle m-r-5 orange"></i>Orange </h5>
@@ -128,12 +136,19 @@ margin: 35px auto;
                         </div>
                     </div>
                 </div>
-            </div>    
+            </div>
             <!-- row -->
+<<<<<<< HEAD
             
         
         </div>
     </div>  
+=======
+
+
+        </div>
+    </div>
+>>>>>>> 9acc1933c4718b29bcba7d306aa94c0660023ac1
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
@@ -234,4 +249,4 @@ payChart.render();
 
 @endsection
 
- 
+

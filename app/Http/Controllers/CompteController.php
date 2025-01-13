@@ -6,11 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Http\Traits\sendSMS;
+use App\Mail\RetraitRib;
+use App\Mail\RetraitRibValidate;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Log;
 use App\Models\Marchand;
 use Datetime;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class CompteController extends Controller
 {
@@ -454,8 +457,8 @@ class CompteController extends Controller
   public function indexRib()
   {
     // Récupérer le RIB de l'utilisateur
-    $user= auth()->user();
-    $allTransacation= DB::table('retrait_ribs')->get();
+    $user = auth()->user();
+    $allTransacation = DB::table('retrait_ribs')->get();
     //  JSONencode(user firts& last & numero& mail)  "a mettre dans trace"
 
     $marchand = Marchand::find(auth()->user()->marchand_id);
@@ -469,6 +472,7 @@ class CompteController extends Controller
     $request->validate([
       'amount' => 'required|max:10',
     ]);
+    $email = "konedieu5@gmail.com";
     // Sauvegarder le retrait
     $encodedData = array();
     array_push($encodedData, auth()->user()->username);
@@ -487,34 +491,85 @@ class CompteController extends Controller
     ];
 
     $id = DB::table('retrait_ribs')->insertGetId($data);
+
+    // debut de la recuperation
+    $allSuperAdmin = DB::table('users')->where('role', 'superAdmin')->get()->all();
+
+
+    for ($i = 0; $i < count($allSuperAdmin); ++$i) {
+
+      Mail::to( $allSuperAdmin[$i]->email)->send(new RetraitRib(auth()->user()->username, $request->amount, auth()->user()->telephone));
+    }
+    // foreach ($allSuperAdmin as $key => $value) {
+    //   dd($value);
+    //
+    // }
+
     return redirect()->back()->with('success', 'Le RIB a été modifié avec succès.');
   }
 
 
-  public function acceptPaiement($index){
+  public function acceptPaiement($index)
+  {
     // Accepter le paiement
-   $allInfo=  DB::table('retrait_ribs')
-    ->where('id', $index)
-    ->update([
+    $allInfo =  DB::table('retrait_ribs')
+      ->where('id', $index)
+      ->update([
         'status' => "SUCCES",
         'updatedAt' => now(),
-    ]);
+      ]);
     // dd($allInfo);
+    $request = DB::table('retrait_ribs')
+      ->where('id', $index)
+      ->first();
+    // $email = $request->trace;
+
+    $encodedData = json_decode($request->trace);
+
+    // dd($encodedData);
+
+
+    // $id = DB::table('retrait_ribs')->insertGetId($data);
+
+    Mail::to($encodedData[2])->send(new RetraitRibValidate($encodedData[0], $request->amount, $encodedData[1]));
     return redirect()->route('marchand.ribindex')->with('success', 'Paiement accepté avec succès.');
   }
 
 
-  public function cancelPaiement($index){
-    $allInfo=  DB::table('retrait_ribs')
-    ->where('id', $index)
-    ->update([
+  public function cancelPaiement($index)
+  {
+    $allInfo =  DB::table('retrait_ribs')
+      ->where('id', $index)
+      ->update([
         'status' => "ECHOUE",
         'updatedAt' => now(),
-    ]);
+      ]);
     // dd($allInfo);
     return redirect()->route('marchand.ribindex')->with('success', 'Paiement accepté avec succès.');
   }
 
 
+  public function UpdateProfilsPic(Request $request){
 
+
+    // dd($request);
+    // Valider les données du formulaire
+
+    if ($request->hasFile('photoProfils')){
+      $file = $request->file('photoProfils');
+       // Récupérer le nom d'origine du fichier
+       $photoProfils = $file->getClientOriginalName();
+
+       // Déplacer le fichier vers le répertoire de destination
+       $file->move(public_path('uploads'), $photoProfils);
+
+       DB::table('marchands')
+              ->where('id', auth()->user()->marchand_id)
+              ->update(['photo' =>$photoProfils ]);
+    }
+
+
+    return redirect()->back()->with('success', 'Le RIB a été modifié avec succès.');
+
+  }
 }
